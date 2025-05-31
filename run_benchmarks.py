@@ -66,7 +66,7 @@ for subfolder_name in benchmark_folders:
     if os.path.isdir(build_path):
         ###############################################
         ##### loop over specified slot_counts #########
-        slot_counts= [4]
+        slot_counts= [2]
         window_size = 0
         for slot_count in slot_counts :
             try : 

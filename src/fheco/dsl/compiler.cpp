@@ -908,14 +908,172 @@ bool isSingleOperandExpression(const std::string& expression) {
       is_unary = true ;
     return is_unary ;
 }
-/***********************************************************************/
+// /***********************************************************************/
+// string process_composed_vectors(const vector<string>& vector_elements,
+//     std::unordered_map<std::string, std::string>& dictionary,
+//     std::unordered_map<std::string, std::string>& inputs_entries,
+//     const std::vector<std::string>& inputs,
+//     const std::vector<std::string>& inputs_types,
+//     int slot_count,
+//     int sub_vector_size)
+// {
+//   if(!verify_all_vec_elems_eq0(vector_elements)){
+//     vector<string> simple_elements = {} ;
+//     vector<string> composed_elements = {} ;
+//     for(auto elem : vector_elements){
+//       //std::cout<<"===========> : First element ==>"<<elem.at(0)<<"\n";
+//       if(elem.at(0)=='('){
+//         composed_elements.push_back(elem);
+//         simple_elements.push_back("0");
+//       }else{
+//         composed_elements.push_back("0");
+//         simple_elements.push_back(elem);
+//       }
+//     }
+    
+//     bool all_simple_elements_eq_0 = verify_all_vec_elems_eq0(simple_elements);
+//     bool all_composed_elements_eq_0 = verify_all_vec_elems_eq0(composed_elements);
+//     //std::cout<<"Next \n";
+//     vector<string> addition_elements = {} ;
+//     vector<string> substraction_elements = {} ;
+//     vector<string> multiplication_elements = {} ;
+//     vector<string> negation_elements = {} ;
+//     if(!all_simple_elements_eq_0&&!all_composed_elements_eq_0){
+//       return "( + "+process_composed_vectors(simple_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(composed_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+//     }else if(!all_composed_elements_eq_0){
+//       // declare simple_elements as a new ciphertext and store it 
+//       // indicate that they are associated with composed elements by an addition 
+//       // cout<<"divide composed_elements vector on three vectors each one containing\n";
+//       //cout<<" ===> Treat composed vectors\n";
+//       for(const auto elem : composed_elements){
+//         if(elem=="0"){
+//           addition_elements.push_back("0");
+//           substraction_elements.push_back("0");
+//           multiplication_elements.push_back("0");
+//           negation_elements.push_back("0");
+//         }else{
+//           if(elem.at(2)=='+'){
+//             addition_elements.push_back(elem);
+//             substraction_elements.push_back("0");
+//             multiplication_elements.push_back("0");
+//             negation_elements.push_back("0");
+//           }else if(elem.at(2)=='-'){
+//             //std::cout<<elem<<"||"<<isSingleOperandExpression(elem)<<"\n";
+//             if(isSingleOperandExpression(elem)){
+//               addition_elements.push_back("0");
+//               substraction_elements.push_back("0");
+//               multiplication_elements.push_back("0");
+//               negation_elements.push_back(elem);
+//             }else{
+//               addition_elements.push_back("0");
+//               substraction_elements.push_back(elem);
+//               multiplication_elements.push_back("0");
+//               negation_elements.push_back("0");
+//             }
+//           }else if(elem.at(2)=='*'){
+//             addition_elements.push_back("0");
+//             substraction_elements.push_back("0");
+//             multiplication_elements.push_back(elem);
+//             negation_elements.push_back("0");
+//           }
+//         }
+//       }
+    
+//       vector<string> vec_ops1 ={} ;
+//       vector<string> vec_ops2 ={} ;
+//       if(!verify_all_vec_elems_eq0(addition_elements)&&!verify_all_vec_elems_eq0(substraction_elements)&&!verify_all_vec_elems_eq0(multiplication_elements)){
+//         return "( + "+process_composed_vectors(addition_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" ( + "+process_composed_vectors(substraction_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(multiplication_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" ) )";
+//       }else if(!verify_all_vec_elems_eq0(addition_elements)&&!verify_all_vec_elems_eq0(substraction_elements)){
+//          return "( + "+process_composed_vectors(addition_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(substraction_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+//       }else if(!verify_all_vec_elems_eq0(substraction_elements)&&!verify_all_vec_elems_eq0(multiplication_elements)){
+//         return "( + "+process_composed_vectors(substraction_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(multiplication_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+//       }else if(!verify_all_vec_elems_eq0(addition_elements)&&!verify_all_vec_elems_eq0(multiplication_elements)){
+//         return "( + "+process_composed_vectors(addition_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(multiplication_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+//       }else if(!verify_all_vec_elems_eq0(addition_elements)){
+//         decompose_vector_op(addition_elements, vec_ops1 ,vec_ops2);
+//         return "( + "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(vec_ops2,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+//       }else if(!verify_all_vec_elems_eq0(substraction_elements)){
+//         decompose_vector_op(substraction_elements, vec_ops1 ,vec_ops2);
+//         return "( - "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(vec_ops2,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+//       }else if(!verify_all_vec_elems_eq0(multiplication_elements)){
+//         decompose_vector_op(multiplication_elements, vec_ops1 ,vec_ops2);
+//         return "( * "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(vec_ops2,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+//       }else if(!verify_all_vec_elems_eq0(negation_elements)){
+//         //std::cout<<"==> Treat Negation case \n";
+//         decompose_vector_op(negation_elements, vec_ops1 ,vec_ops2);
+//         return "( - "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+//       }
+//     }else if(!all_simple_elements_eq_0){
+//       //std::cout<<"==> Traet simple elements \n";
+//       string new_element = ""; 
+//       bool is_literal_val = true ;
+//       //std::cout<<"=> Firts \n";
+//       for(auto val :simple_elements){
+//         if(!is_literal(val)){
+//           if (inputs_types[std::distance(inputs.begin(), std::find(inputs.begin(), inputs.end(), val))] == "1") {
+//             is_literal_val = false;
+//           }
+//         }
+//         new_element+=val+" ";
+//       }
+//       string string_vector = "Vec "+new_element.substr(0, new_element.size() - 1);// strip trailing space
+//       if (dictionary.find(string_vector) == dictionary.end()) {
+//         string res = "";
+//         for(int i = 0 ; i<slot_count ; i++){
+//           res+=simple_elements[i%simple_elements.size()]+" ";
+//         }
+//         new_element = res.substr(0, res.size() - 1); 
+//         string label;
+//         if(is_literal_val){
+//           label = "p" + std::to_string(id_counter);
+//           new_element = "0 1 " + new_element;
+//           //std::cout<<label<<" : "<<new_element<<" \n";
+//         }else{
+//           label = "c" + std::to_string(id_counter);
+//           new_element = "1 1 " + new_element;
+//           //std::cout<<label<<" : "<<new_element<<" \n";
+//         }
+//         labels_map[id_counter] = label;
+//         inputs_entries[label]=new_element;
+//         id_counter++ ;
+//         dictionary[string_vector] = label;
+//         return label ;
+//       }else{
+//         return dictionary[string_vector];
+//       }
+//     }
+//   }
+//   else{
+//     string new_element = ""; 
+//     for(auto val : vector_elements){
+//       new_element+=val+" ";
+//     }
+//     string string_vector = "Vec "+new_element.substr(0, new_element.size() - 1);// strip trailing space
+//     if (dictionary.find(string_vector) == dictionary.end()) {
+//       string res = "";
+//       for(int i = 0 ; i<slot_count ; i++){
+//         res+=vector_elements[i%vector_elements.size()]+" ";
+//       }
+//       new_element = res.substr(0, res.size() - 1); 
+//       string label;
+//       label = "p" + std::to_string(id_counter);
+//       new_element = "0 1 " + new_element;
+//       labels_map[id_counter] = label;
+//       inputs_entries[label]=new_element;
+//       id_counter++ ;
+//       dictionary[string_vector] = label;
+//       return label ;
+//     }else{
+//       return dictionary[string_vector];
+//     }
+//   }
+// }
 string process_composed_vectors(const vector<string>& vector_elements,
     std::unordered_map<std::string, std::string>& dictionary,
     std::unordered_map<std::string, std::string>& inputs_entries,
     const std::vector<std::string>& inputs,
     const std::vector<std::string>& inputs_types,
-    int slot_count,
-    int sub_vector_size)
+    int slot_count)
 {
   if(!verify_all_vec_elems_eq0(vector_elements)){
     vector<string> simple_elements = {} ;
@@ -939,7 +1097,7 @@ string process_composed_vectors(const vector<string>& vector_elements,
     vector<string> multiplication_elements = {} ;
     vector<string> negation_elements = {} ;
     if(!all_simple_elements_eq_0&&!all_composed_elements_eq_0){
-      return "( + "+process_composed_vectors(simple_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(composed_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+      return "( + "+process_composed_vectors(simple_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" "+process_composed_vectors(composed_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" )";
     }else if(!all_composed_elements_eq_0){
       // declare simple_elements as a new ciphertext and store it 
       // indicate that they are associated with composed elements by an addition 
@@ -982,26 +1140,26 @@ string process_composed_vectors(const vector<string>& vector_elements,
       vector<string> vec_ops1 ={} ;
       vector<string> vec_ops2 ={} ;
       if(!verify_all_vec_elems_eq0(addition_elements)&&!verify_all_vec_elems_eq0(substraction_elements)&&!verify_all_vec_elems_eq0(multiplication_elements)){
-        return "( + "+process_composed_vectors(addition_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" ( + "+process_composed_vectors(substraction_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(multiplication_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" ) )";
+        return "( + "+process_composed_vectors(addition_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" ( + "+process_composed_vectors(substraction_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" "+process_composed_vectors(multiplication_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" ) )";
       }else if(!verify_all_vec_elems_eq0(addition_elements)&&!verify_all_vec_elems_eq0(substraction_elements)){
-         return "( + "+process_composed_vectors(addition_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(substraction_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+         return "( + "+process_composed_vectors(addition_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" "+process_composed_vectors(substraction_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" )";
       }else if(!verify_all_vec_elems_eq0(substraction_elements)&&!verify_all_vec_elems_eq0(multiplication_elements)){
-        return "( + "+process_composed_vectors(substraction_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(multiplication_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+        return "( + "+process_composed_vectors(substraction_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" "+process_composed_vectors(multiplication_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" )";
       }else if(!verify_all_vec_elems_eq0(addition_elements)&&!verify_all_vec_elems_eq0(multiplication_elements)){
-        return "( + "+process_composed_vectors(addition_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(multiplication_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+        return "( + "+process_composed_vectors(addition_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" "+process_composed_vectors(multiplication_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" )";
       }else if(!verify_all_vec_elems_eq0(addition_elements)){
         decompose_vector_op(addition_elements, vec_ops1 ,vec_ops2);
-        return "( + "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(vec_ops2,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+        return "( + "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" "+process_composed_vectors(vec_ops2,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" )";
       }else if(!verify_all_vec_elems_eq0(substraction_elements)){
         decompose_vector_op(substraction_elements, vec_ops1 ,vec_ops2);
-        return "( - "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(vec_ops2,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+        return "( - "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" "+process_composed_vectors(vec_ops2,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" )";
       }else if(!verify_all_vec_elems_eq0(multiplication_elements)){
         decompose_vector_op(multiplication_elements, vec_ops1 ,vec_ops2);
-        return "( * "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" "+process_composed_vectors(vec_ops2,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+        return "( * "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" "+process_composed_vectors(vec_ops2,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" )";
       }else if(!verify_all_vec_elems_eq0(negation_elements)){
         //std::cout<<"==> Treat Negation case \n";
         decompose_vector_op(negation_elements, vec_ops1 ,vec_ops2);
-        return "( - "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size)+" )";
+        return "( - "+process_composed_vectors(vec_ops1,dictionary,inputs_entries,inputs,inputs_types,slot_count)+" )";
       }
     }else if(!all_simple_elements_eq_0){
       //std::cout<<"==> Traet simple elements \n";
@@ -1068,7 +1226,6 @@ string process_composed_vectors(const vector<string>& vector_elements,
     }
   }
 }
-
 /**********************************************************************/
 string generate_rotated_expression(string& expression_to_rotate, int number_of_rotations, string operation) {
 
@@ -1097,6 +1254,191 @@ string generate_rotated_expression(string& expression_to_rotate, int number_of_r
 
 }
 /**********************************************************************/
+// std::pair<std::string, int> process(
+//     const std::vector<std::string>& tokens,
+//     int index,
+//     std::unordered_map<std::string, std::string>& dictionary,
+//     std::unordered_map<std::string, std::string>& inputs_entries,
+//     const std::vector<std::string>& inputs,
+//     const std::vector<std::string>& inputs_types,
+//     int slot_count,
+//     int sub_vector_size,
+//     string& new_expression,
+//     bool& rotation_flag,
+//     string& expression_to_rotate
+// ) {
+      
+//     cout << "tokens: " + std::to_string(tokens.size()) << endl;
+//   // Process tokens while index is within bounds
+//   std::string output;
+//   for (int i = index; i < tokens.size(); i++) {
+//     output += tokens[i] + " ";
+//     if (output.length() > 100) {
+//       std::cout << output << std::endl;
+//       output.clear();
+//     }
+//   }
+//   if (!output.empty()) {
+//     std::cout << output << std::endl;
+//   }
+
+//   // Continue with the original function
+//     while (index < tokens.size()) {
+//       cout << tokens[index] << endl ; 
+//         if (tokens[index] == "(") {
+//             index++;
+            
+//             if (tokens[index] == "Vec"){
+//                 std::string vector_string = "Vec ";
+//                 int nested_level = 0;
+//                 index++;
+//                 while (nested_level >= 0) {
+//                     vector_string += tokens[index] + " ";
+//                     nested_level += (tokens[index] == "(") ? 1 : (tokens[index] == ")") ? -1 : 0;
+//                     index++;
+//                 }
+//                 vector_string = vector_string.substr(0, vector_string.size() - 2);
+//                 istringstream iss(vector_string.substr(4));
+//                 vector<string> vector_elements = {};
+//                 string element="";
+//                 while (iss >> element) {
+//                   string vector_string_element="";
+//                   if (element=="("){
+//                     vector_string_element+=" (" ;
+//                     int sub_nested_level=0 ;
+//                     while (iss >> element&&sub_nested_level>=0){
+//                         if(element!=")"&&element!="("){
+//                           vector_string_element+=" "+element; 
+//                         }else{
+//                             sub_nested_level += (element == "(") ? 1 : (element == ")") ? -1 : 0;
+//                             vector_string_element+=" "+element ;
+//                         }
+//                     }
+//                     iss.seekg(-element.length(), std::ios_base::cur);
+//                     vector_elements.push_back(vector_string_element.substr(1,vector_string_element.size()));
+//                   }else{
+//                     vector_elements.push_back(element);
+//                   }     
+//                 }
+//                 vector<string> updated_vector_elements = {};
+//                 bool if_all_vector_elems_eq0 = true ;
+//                 for(auto elem : vector_elements){
+//                   auto tokens = split(elem);
+//                   string updated_elem = constant_folding(tokens);
+//                   updated_vector_elements.push_back(updated_elem);
+//                 }
+//                 string result_expr = process_composed_vectors(updated_vector_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size);
+//                 if (!rotation_flag) new_expression+=" "+result_expr;
+//                 if (rotation_flag) expression_to_rotate += " " + result_expr;
+//                 if(result_expr.substr(0,1)=="("){
+//                   std::string label = "c" + std::to_string(id_counter);
+//                   labels_map[id_counter] = label;
+//                   id_counter++;
+//                   return {label, index};
+//                 }else{
+//                   return {dictionary[vector_string], index};
+//                 }
+//             } else if (tokens[index] == "VecAddRotF" | tokens[index] == "VecAddRotP" |
+//                     tokens[index] == "VecMinusRotF" | tokens[index] == "VecMinusRotP" |
+//                     tokens[index] == "VecMulRotF" | tokens[index] == "VecMulRotP"){
+//                        rotation_flag = true;
+//                       std::string expression_to_rotate = "";
+//                       expression_to_rotate += " (";
+//                       std::string operation = tokens[index];
+//                       std::string op = 
+//                       operation == "VecAddRotF"  | operation == "VecAddRotP" ? "+" : 
+//                       operation == "VecMinusRotF" | operation == "VecMinusRotP" ? "-" : 
+//                       operation == "VecMulRotF" | operation == "VecMulRotP" ? "*" : "+";
+//                       expression_to_rotate += " " + op;
+
+//                       index++;
+//                       auto [operand_1, new_index] = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count, sub_vector_size,new_expression, rotation_flag, expression_to_rotate);
+//                       index = new_index;
+
+//                       if (tokens[index] != ")") {
+//                         std::string operand_2;
+//                         if (tokens[index] == "(") {
+//                             std::tie(operand_2, index) = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count, sub_vector_size,new_expression, rotation_flag, expression_to_rotate);
+//                         } else {
+//                             operand_2 = tokens[index];
+//                             new_expression += " " + operand_2;
+//                             expression_to_rotate += " " + operand_2;
+
+//                             index++;
+//                         }
+//                         expression_to_rotate += " )";
+                       
+//                         string ret = generate_rotated_expression(expression_to_rotate, /*number of rotations*/ std::stoi(tokens[index]), /*the current operatoin*/ std::string(1, expression_to_rotate[3]));
+//                         new_expression += ret;
+                        
+//                         std::string op = (operation == "VecAdd") ? "+" : (operation == "VecMinus") ? "-" : (operation == "VecMul") ? "*" : "<<";
+//                         std::string label = "c" + std::to_string(id_counter);
+//                         labels_map[id_counter] = label;
+//                         id_counter++;
+//                         index++;  // skip ")"
+//                         index++;  // skip the space
+//                         rotation_flag = false;
+//                         return {label, index};
+//                         } else {
+//                           /******/new_expression+=" )";
+//                             index++;
+//                             std::string label = "c" + std::to_string(id_counter);
+//                             labels_map[id_counter] = label;
+//                             inputs_entries[label]=label;
+//                             id_counter++;
+//                             return {label, index};
+//                         }
+//           } else if(tokens[index] == "VecAdd" | tokens[index] == "+" | tokens[index] == "VecAddRotS" |
+//                     tokens[index] == "VecMinus" | tokens[index] == "-" | tokens[index] == "VecMinusRotS" |
+//                     tokens[index] == "VecMul" | tokens[index] == "*" | tokens[index] == "VecMulRotS") {
+//           /******/new_expression+=" (";
+//             std::string operation = tokens[index];
+//             std::string op = 
+//               operation == "VecAdd" | operation == "+" ? "+" :
+//               operation == "VecMinus"  | operation == "-" ? "-" : 
+//               operation == "VecMul"  | operation == "*" ? "*":
+//               operation == "VecAddRotS" ? "VecAddRot" :
+//               operation == "VecMinusRotS" ? "VecMinusRot" : 
+//               operation == "VecMulRotS" ? "VecMulRot" 
+//               : "<<";           
+//             /*****/new_expression+=" "+op ;
+//             index++;
+//             auto [operand_1, new_index] = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count, sub_vector_size,new_expression, rotation_flag, expression_to_rotate);
+//             index = new_index;
+//             if (tokens[index] != ")") {
+//                 std::string operand_2;
+//                 if (tokens[index] == "(") {
+//                     std::tie(operand_2, index) = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count, sub_vector_size,new_expression, rotation_flag, expression_to_rotate);
+//                 } else {
+//                     operand_2 = tokens[index];
+//                     new_expression+=" "+operand_2;
+//                     index++;
+//                 }
+//                 /******/new_expression+=" )";
+//                 std::string label = "c" + std::to_string(id_counter);
+//                 labels_map[id_counter] = label;
+//                 id_counter++;
+//                 index++;
+//                 return {label, index};
+//             }else{
+//                 /******/new_expression+=" )";
+//                 index++;
+//                 std::string label = "c" + std::to_string(id_counter);
+//                 labels_map[id_counter] = label;
+//                 id_counter++;
+//                 return {label, index};
+//             }
+//           }   
+//         } 
+//         else if (tokens[index].rfind("c_", 0) == 0 || tokens[index].rfind("p_", 0) == 0) {
+//               std::cout << "ciphertext/plaintext found : " << tokens[index] << std::endl;
+//               index++;
+//               std::cout << "ciphertext/plaintext found : " << tokens[index] << std::endl;
+//             }
+//     }
+//     return {"", index};
+// }
+
 std::pair<std::string, int> process(
     const std::vector<std::string>& tokens,
     int index,
@@ -1105,15 +1447,11 @@ std::pair<std::string, int> process(
     const std::vector<std::string>& inputs,
     const std::vector<std::string>& inputs_types,
     int slot_count,
-    int sub_vector_size,
-    string& new_expression,
-    bool& rotation_flag,
-    string& expression_to_rotate
+    string& new_expression
 ) {
     while (index < tokens.size()) {
         if (tokens[index] == "(") {
             index++;
-            
             if (tokens[index] == "Vec"){
                 std::string vector_string = "Vec ";
                 int nested_level = 0;
@@ -1138,7 +1476,7 @@ std::pair<std::string, int> process(
                         }else{
                             sub_nested_level += (element == "(") ? 1 : (element == ")") ? -1 : 0;
                             vector_string_element+=" "+element ;
-                        }
+                        } 
                     }
                     iss.seekg(-element.length(), std::ios_base::cur);
                     vector_elements.push_back(vector_string_element.substr(1,vector_string_element.size()));
@@ -1153,9 +1491,8 @@ std::pair<std::string, int> process(
                   string updated_elem = constant_folding(tokens);
                   updated_vector_elements.push_back(updated_elem);
                 }
-                string result_expr = process_composed_vectors(updated_vector_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count,sub_vector_size);
-                if (!rotation_flag) new_expression+=" "+result_expr;
-                if (rotation_flag) expression_to_rotate += " " + result_expr;
+                string result_expr = process_composed_vectors(updated_vector_elements,dictionary,inputs_entries,inputs,inputs_types,slot_count);
+                new_expression+=" "+result_expr;
                 if(result_expr.substr(0,1)=="("){
                   std::string label = "c" + std::to_string(id_counter);
                   labels_map[id_counter] = label;
@@ -1164,77 +1501,18 @@ std::pair<std::string, int> process(
                 }else{
                   return {dictionary[vector_string], index};
                 }
-            } else if (tokens[index] == "VecAddRotF" | tokens[index] == "VecAddRotP" |
-                    tokens[index] == "VecMinusRotF" | tokens[index] == "VecMinusRotP" |
-                    tokens[index] == "VecMulRotF" | tokens[index] == "VecMulRotP"){
-                       rotation_flag = true;
-                      std::string expression_to_rotate = "";
-                      expression_to_rotate += " (";
-                      std::string operation = tokens[index];
-                      std::string op = 
-                      operation == "VecAddRotF"  | operation == "VecAddRotP" ? "+" : 
-                      operation == "VecMinusRotF" | operation == "VecMinusRotP" ? "-" : 
-                      operation == "VecMulRotF" | operation == "VecMulRotP" ? "*" : "+";
-                      expression_to_rotate += " " + op;
-
-                      index++;
-                      auto [operand_1, new_index] = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count, sub_vector_size,new_expression, rotation_flag, expression_to_rotate);
-                      index = new_index;
-
-                      if (tokens[index] != ")") {
-                        std::string operand_2;
-                        if (tokens[index] == "(") {
-                            std::tie(operand_2, index) = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count, sub_vector_size,new_expression, rotation_flag, expression_to_rotate);
-                        } else {
-                            operand_2 = tokens[index];
-                            new_expression += " " + operand_2;
-                            expression_to_rotate += " " + operand_2;
-
-                            index++;
-                        }
-                        expression_to_rotate += " )";
-                       
-                        string ret = generate_rotated_expression(expression_to_rotate, /*number of rotations*/ std::stoi(tokens[index]), /*the current operatoin*/ std::string(1, expression_to_rotate[3]));
-                        new_expression += ret;
-                        
-                        std::string op = (operation == "VecAdd") ? "+" : (operation == "VecMinus") ? "-" : (operation == "VecMul") ? "*" : "<<";
-                        std::string label = "c" + std::to_string(id_counter);
-                        labels_map[id_counter] = label;
-                        id_counter++;
-                        index++;  // skip ")"
-                        index++;  // skip the space
-                        rotation_flag = false;
-                        return {label, index};
-                        } else {
-                          /******/new_expression+=" )";
-                            index++;
-                            std::string label = "c" + std::to_string(id_counter);
-                            labels_map[id_counter] = label;
-                            inputs_entries[label]=label;
-                            id_counter++;
-                            return {label, index};
-                        }
-          } else if(tokens[index] == "VecAdd" | tokens[index] == "+" | tokens[index] == "VecAddRotS" |
-                    tokens[index] == "VecMinus" | tokens[index] == "-" | tokens[index] == "VecMinusRotS" |
-                    tokens[index] == "VecMul" | tokens[index] == "*" | tokens[index] == "VecMulRotS") {
-          /******/new_expression+=" (";
-            std::string operation = tokens[index];
-            std::string op = 
-              operation == "VecAdd" | operation == "+" ? "+" :
-              operation == "VecMinus"  | operation == "-" ? "-" : 
-              operation == "VecMul"  | operation == "*" ? "*":
-              operation == "VecAddRotS" ? "VecAddRot" :
-              operation == "VecMinusRotS" ? "VecMinusRot" : 
-              operation == "VecMulRotS" ? "VecMulRot" 
-              : "<<";           
+            } 
+            /******/new_expression+=" (";
+            std::string operation = tokens[index];    
+            std::string op = (operation == "VecAdd") ? "+" : (operation == "VecMinus") ? "-" : (operation == "VecNeg") ? "-": (operation == "VecMul") ? "*": (operation == "VecAddRot") ? "VecAddRot" : (operation == "VecMinusRot") ? "VecMinusRot" : (operation == "VecMulRot") ? "VecMulRot" : "<<";    
             /*****/new_expression+=" "+op ;
             index++;
-            auto [operand_1, new_index] = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count, sub_vector_size,new_expression, rotation_flag, expression_to_rotate);
+            auto [operand_1, new_index] = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count,new_expression);
             index = new_index;
             if (tokens[index] != ")") {
                 std::string operand_2;
                 if (tokens[index] == "(") {
-                    std::tie(operand_2, index) = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count, sub_vector_size,new_expression, rotation_flag, expression_to_rotate);
+                    std::tie(operand_2, index) = process(tokens, index, dictionary, inputs_entries,inputs,inputs_types, slot_count,new_expression);
                 } else {
                     operand_2 = tokens[index];
                     new_expression+=" "+operand_2;
@@ -1254,13 +1532,7 @@ std::pair<std::string, int> process(
                 id_counter++;
                 return {label, index};
             }
-          }   
-        } 
-        else if (tokens[index].rfind("c_", 0) == 0 || tokens[index].rfind("p_", 0) == 0) {
-              std::cout << "ciphertext/plaintext found : " << tokens[index] << std::endl;
-              index++;
-              std::cout << "ciphertext/plaintext found : " << tokens[index] << std::endl;
-            }
+        }
     }
     return {"", index};
 }
@@ -1780,7 +2052,7 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func, int
     int maxSize;
     int slot_count;
     int sub_vector_size;
-
+    cout << "Formatting vectorized code" << std::endl;
     std::string inputs_file = "../inputs.txt";
     std::ifstream input_file(inputs_file);
     std::string inputs_line, input_types_line;
@@ -1792,8 +2064,11 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func, int
     std::vector<std::string> inputs, inputs_types;
     std::istringstream iss_inputs(inputs_line), iss_types(input_types_line);
     std::string token;
+
     while (iss_inputs >> token) inputs.push_back(token);
+
     while (iss_types >> token) inputs_types.push_back(token);
+
     /********************************************************************/
     std::string vectorized_file = "../vectorized_code.txt";
     /*********************************************************************/
@@ -1806,6 +2081,7 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func, int
         }
         vec_file.close();
     }
+    
     /*********************************************************************/
      if (benchmark_type != UNSTRUCTURED_WITH_ONE_OUTPUT) {
       /* if there are various outputs (vector as output), we need to get the sizes of the slot
@@ -1842,19 +2118,22 @@ void Compiler::format_vectorized_code(const std::shared_ptr<ir::Func> &func, int
         auto tokens = process_vectorized_code(expr);
         std::unordered_map<std::string, std::string> dictionary = {};
         // std::cout << "expression before calling expr is : " << expr << std::endl;
-        process(tokens,0,dictionary,inputs_entries,inputs,inputs_types, slot_count, sub_vector_size,simplified_expression, rotation_flag, expression_to_rotate);
+    cout << "heeeeeeeeeeere 1" << std::endl;
+
+        process(tokens,0,dictionary,inputs_entries,inputs,inputs_types, slot_count,simplified_expression);
         // Convert new operands VecAddRot, VecMulRot, VecMinusRot
-        if (benchmark_type == STRUCTURED_WITH_ONE_OUTPUT || benchmark_type == STRUCTURED_WITH_MULTIPLE_OUTPUTS) {
-          auto tokens1 = split(simplified_expression.substr(1));
-          string updated_expr = convert_new_ops(tokens1);
-          simplified_expressions.push_back(updated_expr);
-        }  else if (benchmark_type == UNSTRUCTURED_WITH_ONE_OUTPUT || benchmark_type == STRUCTURED_WITH_MULTIPLE_OUTPUTS) {
-            simplified_expressions.push_back(simplified_expression.substr(1));
-        }
+    cout << "heeeeeeeeeeere 1" << std::endl;
+
+        // if (benchmark_type == STRUCTURED_WITH_ONE_OUTPUT || benchmark_type == STRUCTURED_WITH_MULTIPLE_OUTPUTS) {
+        //   auto tokens1 = split(simplified_expression.substr(1));
+        //   string updated_expr = convert_new_ops(tokens1);
+        //   simplified_expressions.push_back(updated_expr);
+        // }  else if (benchmark_type == UNSTRUCTURED_WITH_ONE_OUTPUT || benchmark_type == STRUCTURED_WITH_MULTIPLE_OUTPUTS) {
+        simplified_expressions.push_back(simplified_expression.substr(1));
+        //}
         simplified_expression="";
         outputs.push_back(labels_map[id_counter - 1]);
     }
-    
     vector<string> updated_cons_fd_expressions = simplified_expressions; 
     vector<string> labels = {};
     for (const auto& pair : inputs_entries) {
