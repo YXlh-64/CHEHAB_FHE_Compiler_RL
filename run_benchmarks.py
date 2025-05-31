@@ -51,8 +51,7 @@ except subprocess.CalledProcessError as e:
 # "box_blur","gx_kernel","gy_kernel","sobel","roberts_cross","matrix_mul"
 # 
 # benchmark_folders = ["gx_kernel", "gy_kernel", "roberts_cross", "matrix_mul"]
-benchmark_folders = ["hamming_dist","poly_reg","lin_reg","l2_distance","dot_product","box_blur","gx_kernel","gy_kernel","sobel","roberts_cross","matrix_mul","sort" , "max"]
-benchmark_folders = ["box_blur"]
+benchmark_folders = ["hamming_dist","poly_reg","lin_reg","l2_distance","dot_product","box_blur","gx_kernel","gy_kernel","sobel","roberts_cross","matrix_mul"]
 ###############################
 ### specify the number of iteration
 iterations = 1
@@ -66,7 +65,7 @@ for subfolder_name in benchmark_folders:
     if os.path.isdir(build_path):
         ###############################################
         ##### loop over specified slot_counts #########
-        slot_counts= [2]
+        slot_counts= [1,2,3,4,5]
         window_size = 0
         for slot_count in slot_counts :
             try : 
