@@ -1,6 +1,8 @@
 use egg::*;
+use std::collections::HashMap;
 use rand::Rng;
 use std::collections::HashSet;
+use crate::veclang::VecLang;
 
 pub struct SimulatedAnnealingExtractor<'a, L: Language, N: Analysis<L>> {
     egraph: &'a egg::EGraph<L, N>,
@@ -23,20 +25,20 @@ where
         })
     }
 
-    fn calculate_op_cost(op: &str) -> f64 {
+    fn calculate_op_cost(op: &str) -> usize {
         // Cost definitions
-        const LITERAL: f64 = 0.0;
-        const STRUCTURE: f64 = 2000.0;
-        const VEC_OP: f64 = 1.0;
-        const OP: f64 = 1.0;
+        const LITERAL: usize = 0;
+        const STRUCTURE: usize = 2000;
+        const VEC_OP: usize = 1;
+        const OP: usize = 1;
     
         // Calculate cost based on operator type
         match op {
-            "+" | "*" | "-" | "neg" => OP * 10000.0,
-            "<<" => VEC_OP * 50.0,
+            "+" | "*" | "-" | "neg" => OP * 10000,
+            "<<" => VEC_OP * 50,
             "Vec" => STRUCTURE,
             "VecAdd" | "VecMinus" => VEC_OP,
-            "VecMul" => VEC_OP * 100.0,
+            "VecMul" => VEC_OP * 100,
             _ => LITERAL,
         }
     }    
@@ -44,11 +46,11 @@ where
     pub fn extract_expression(
         &mut self,
         expr: &mut RecExpr<L>,
-        cost: &mut f64,
+        cost: &mut usize,
         eclass_id: Id,
         visited: &mut HashSet<Id>, // Track visited eclasses
         selected_enodes: &mut HashSet<(L, Id)>,
-    ) -> (Id, f64) {
+    ) -> (Id, usize) {
         // RNG setup for selecting a random enode
         let mut rng = rand::thread_rng();
 
@@ -105,13 +107,13 @@ where
     fn generate_neighbor_expression(
         &mut self,
         expr: &mut RecExpr<L>,
-        cost: &mut f64,
+        cost: &mut usize,
         eclass_id: Id,
         previous_selected_enodes: HashSet<(L, Id)>,
         selected_enodes: &mut HashSet<(L, Id)>,
         changed: &mut bool,
         visited: &mut HashSet<Id>,
-    ) -> (Id, f64) {
+    ) -> (Id, usize) {
 
         // RNG setup for selecting a random enode
         let mut rng = rand::thread_rng();
@@ -196,22 +198,19 @@ where
 
     pub fn find_best(
         &mut self,
-        _egraph: &'a EGraph<L, N>,
+        egraph: &'a EGraph<L, N>,
         initial_eclass_id: Id,
         max_iteration: usize,
         initial_temp: f64,
         cooling_rate: f64
-    ) -> (f64, RecExpr<L>){
+    ) -> (usize, RecExpr<L>){
         let mut rng = rand::thread_rng();
         let mut current_expr = RecExpr::default();
-        let mut current_cost = f64::MAX;
+        let mut current_cost = usize::MAX;
         let mut selected_enodes = HashSet::new();
         let mut currently_selected_enodes = HashSet::new();
-        let mut best_expr;
-        let mut best_cost;
-
-        // best_expr = current_expr.clone();
-        // best_cost = current_cost;
+        let mut best_expr = current_expr.clone();
+        let mut best_cost = current_cost;
 
         let mut temperature = initial_temp;
 

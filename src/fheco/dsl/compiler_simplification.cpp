@@ -292,28 +292,21 @@ ir::Term *Compiler_Simplification::build_expression(
 
       if (potential_step.size() > 0 || operand2)
       {
-
         if (op_is_rotation)
         {
-
           operation = ir::OpCode::rotate(stoi(potential_step));
-
           vector<ir::Term *> operands = {operand1};
-
           return func->insert_op_term(move(operation), move(operands));
         }
         else
         {
-
           vector<ir::Term *> operands = {operand1, operand2};
-
           auto term = func->insert_op_term(move(operation), move(operands));
           return term;
         }
       }
       else
       {
-
         vector<ir::Term *> operands = {operand1};
         if (operation == ir::OpCode::sub)
           operation = ir::OpCode::negate;
@@ -322,7 +315,6 @@ ir::Term *Compiler_Simplification::build_expression(
     }
     else
     {
-
       return map.at(tokens.front());
     }
   }

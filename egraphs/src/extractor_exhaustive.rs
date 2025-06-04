@@ -45,11 +45,11 @@ where
         dependency_map: HashMap<Id, HashSet<Id>>,
         root_id: Id,
         current_index: usize,
-        current_cost: f64,
+        current_cost: usize,
         current_nodes: Vec<L>,
-        best_cost: &mut f64,
+        best_cost: &mut usize,
         best_expr: &mut RecExpr<L>,
-        memo: &mut HashMap<(Id, Vec<Id>), (f64, RecExpr<L>)>,
+        memo: &mut HashMap<(Id, Vec<Id>), (usize, RecExpr<L>)>,
     ) {
         let current_eclass = &self.egraph[eclass_ids[current_index]];
 
@@ -83,11 +83,11 @@ where
                 // "+" | "*" | "-" => continue 'node_loop,
 
                 // Add specific costs for vector operations and structures
-                "<<" => next_cost += VEC_OP * 50.0, // Cost for vector shift operation
+                "<<" => next_cost += VEC_OP * 50, // Cost for vector shift operation
                 "Vec" => next_cost += STRUCTURE,  // Cost for vector structure
                 "VecAdd" | "VecMinus" | "VecNeg" => next_cost += VEC_OP, // Cost for basic vector operations
-                "VecMul" => next_cost += VEC_OP * 100.0, // Higher cost for vector multiplication
-                "+" | "*" | "-" => next_cost += VEC_OP * 10000.0,
+                "VecMul" => next_cost += VEC_OP * 100, // Higher cost for vector multiplication
+                "+" | "*" | "-" => next_cost += VEC_OP * 10000,
 
                 // Default cost for any other operations (assumed to be literal)
                 _ => next_cost += LITERAL,

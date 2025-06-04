@@ -97,7 +97,7 @@ const Ciphertext &Ciphertext::set_output(string label) const
 }
 
 void Ciphertext::set_shape(vector<size_t> shape)
-{
+{ 
   shape_ = move(shape);
   validate_shape(shape_);
 }

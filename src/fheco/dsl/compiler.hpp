@@ -3,6 +3,7 @@
 #include "fheco/ir/func.hpp"
 #include "fheco/param_select/enc_params.hpp"
 #include "fheco/trs/common.hpp"
+#include "fheco/dsl/compiler_helper_functions.hpp"
 #include <cstddef>
 #include <limits>
 #include <map>
@@ -15,7 +16,6 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include <regex>
 
 using std::queue;
 using std::string;
@@ -29,7 +29,8 @@ public:
   {
     depth,
     ops_cost,
-    joined
+    joined,
+    simplification_ruleset,
   };
  
   static inline const std::shared_ptr<ir::Func> &create_func(
@@ -39,7 +40,7 @@ public:
     return add_func(std::make_shared<ir::Func>(
       std::move(name), slot_count, delayed_reduct, modulus, signedness, need_cyclic_rotation, overflow_warnings));
   }
-
+ 
   static inline const std::shared_ptr<ir::Func> &create_func(
     std::string name, std::size_t slot_count, int bit_width, bool signedness, bool need_cyclic_rotation,
     bool overflow_warnings = false)
@@ -54,12 +55,13 @@ public:
   
   static ir::Term *build_expression(
   const std::shared_ptr<ir::Func> &func, std::map<string, ir::Term *> map, queue<string> &tokens);
-  static ir::OpCode operationFromString(string operation);
   
-  static void gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int benchmark_type);
-  static void format_vectorized_code(const std::shared_ptr<ir::Func> &func, int benchmark_type);
+  static void gen_vectorized_code(const std::shared_ptr<ir::Func> &func);
 
-  static void gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int window, int benchmark_type);
+  static void format_vectorized_code(const std::shared_ptr<ir::Func> &func);
+
+  static void gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int window);
+  
   static void gen_he_code(
     const std::shared_ptr<ir::Func> &func, std::ostream &header_os, std::string_view header_name,
     std::ostream &source_os, std::size_t rotation_keys_threshold = std::numeric_limits<std::size_t>::max(),
@@ -72,7 +74,9 @@ public:
   }
 
   static void set_active_func(const std::string &name);
-  static void call_vectorizer(int vector_width, int benchmark_type);
+  
+  static void call_vectorizer(int vector_width);
+  
   static void call_script();
 
   static const std::shared_ptr<ir::Func> &get_func(const std::string &name);

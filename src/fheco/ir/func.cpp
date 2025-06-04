@@ -18,7 +18,7 @@ using namespace std;
 
 namespace fheco::ir
 {
-Func::Func(
+Func::Func( 
   string name, size_t slot_count, bool delayed_reduct, int plain_modulus_bit_size, bool signedness, bool need_cyclic_rotation,
   bool overflow_warnings)
   : name_{move(name)}, slot_count_{slot_count} ,plain_modulus_{plain_modulus_bit_size}, need_cyclic_rotation_{need_cyclic_rotation},
@@ -90,18 +90,15 @@ void Func::operate_binary(OpCode op_code, const TArg1 &arg1, const TArg2 &arg2, 
     throw invalid_argument("operating with incompatible shapes");
 
   dest.shape_ = arg1.shape();
-
   if (arg1.example_val() && arg2.example_val())
   {
     PackedVal dest_example_val;
     clear_data_eval_.operate_binary(op_code, *arg1.example_val(), *arg2.example_val(), dest_example_val);
     dest.example_val_ = move(dest_example_val);
   }
-
   vector<Term *> operands{arg1_term, arg2_term};
   dest.id_ = insert_op_term(move(op_code), move(operands))->id();
 }
-
 template <typename T>
 void Func::set_output(const T &output, string label)
 {
@@ -110,7 +107,6 @@ void Func::set_output(const T &output, string label)
   else
     throw invalid_argument("object not defined");
 }
-
 void Func::update_negative_rotation_steps(int polynomial_modulus_degree){
     data_flow_.update_negative_rotation_steps(polynomial_modulus_degree);
 }
@@ -122,16 +118,16 @@ Term *Func::insert_op_term(OpCode op_code, vector<Term *> operands, bool &insert
     vector<PackedVal> operands_vals;
     if (can_fold(operands, operands_vals))
     {
-#ifdef FHECO_LOGGING
-      util::ExprPrinter expr_printer{Compiler::active_func()};
-      clog << "const folding: ";
-      if (operands.size() == 1)
-        clog << op_code << " " << expr_printer.make_leaf_str_expr(operands[0]);
-      else if (operands.size() == 2)
-        clog << expr_printer.make_leaf_str_expr(operands[0]) << " " << op_code << " "
-             << expr_printer.make_leaf_str_expr(operands[1]);
-      clog << '\n';
-#endif
+      #ifdef FHECO_LOGGING
+        util::ExprPrinter expr_printer{Compiler::active_func()};
+        clog << "const folding: ";
+        if (operands.size() == 1)
+          clog << op_code << " " << expr_printer.make_leaf_str_expr(operands[0]);
+        else if (operands.size() == 2)
+          clog << expr_printer.make_leaf_str_expr(operands[0]) << " " << op_code << " "
+              << expr_printer.make_leaf_str_expr(operands[1]);
+        clog << '\n';
+      #endif
       if (op_code.type() == OpCode::Type::encrypt)
         return insert_const_term(operands_vals[0], inserted);
 

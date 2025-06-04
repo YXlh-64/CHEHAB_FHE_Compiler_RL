@@ -15,7 +15,7 @@ target_compile_features(utils PUBLIC cxx_std_17)
 set_target_properties(utils PROPERTIES CXX_EXTENSIONS OFF)
 target_link_libraries(utils SEAL::seal)
 
-add_executable(main main.cpp)
+add_executable(main main.cpp) 
 target_link_libraries(main PRIVATE gen_he_fhe)
 target_link_libraries(main PRIVATE utils)
 

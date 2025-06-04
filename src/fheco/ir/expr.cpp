@@ -10,7 +10,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <tuple>
-#include <utility>
+#include <utility> 
 
 using namespace std;
 
@@ -98,10 +98,10 @@ Term *Expr::insert_op(OpCode op_code, vector<Term *> operands, bool &inserted)
 
     if (auto term = find_op(&op_code, &operands); term)
     {
-#ifdef FHECO_LOGGING
-      util::ExprPrinter expr_printer{Compiler::active_func()};
-      clog << "term \"" << expr_printer.expand_term_str_expr(term) << "\" already exists (CSE)\n";
-#endif
+      #ifdef FHECO_LOGGING
+        util::ExprPrinter expr_printer{Compiler::active_func()};
+        clog << "term \"" << expr_printer.expand_term_str_expr(term) << "\" already exists (CSE)\n";
+      #endif
       inserted = false;
       return term;
     }

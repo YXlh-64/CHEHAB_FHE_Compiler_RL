@@ -1120,6 +1120,9 @@ def test_agent(expressions_file: str, model_filepath: str):
 
 def run_agent(expressions_file: str, model_filepath: str,output_file: str):
     expressions = load_expressions(expressions_file)
+    
+    print("loaded expressions: ",expressions)
+    
     if not len(expressions):
         print("No valid expressions found in the file.")
         sys.exit(1)
@@ -1196,11 +1199,13 @@ def run_agent(expressions_file: str, model_filepath: str,output_file: str):
         steps += 1
     if not final_expr:
         final_expr = last_expr
+    
     parsed = parse_sexpr(final_expr)
-    vec_sizes=" ".join(str(x) for x in calc_vec_sizes(parsed))
+    vec_sizes=max(calc_vec_sizes(parsed))
     print(vec_sizes)
+    print(final_expr)
     with open (output_file, "w") as f:
-        f.write(last_expr+"\n"+vec_sizes)
+        f.write(final_expr+"\n"+str(vec_sizes))
 
 def calc_vec_sizes(expr:Expr):
     vec_sizes=[]

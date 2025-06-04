@@ -10,7 +10,7 @@
 #include <string>
 #include <string_view>
 using namespace std;
-
+ 
 namespace fheco::code_gen
 {
 
@@ -53,8 +53,8 @@ void gen_func(
     params.print_params(std::cout); 
     //std::cout<<"Encryption params have been printed succefully\n";
     gen_main_code(params,security_level,automatic_enc_params_enabled);
-  }else{
-    int poly_modulus_degree = 8192 ;
+  }else{ 
+    int poly_modulus_degree = 16384 ;
     param_select::EncParams params = param_select::EncParams(poly_modulus_degree,func->plain_modulus()); 
     gen_main_code(params,security_level,automatic_enc_params_enabled);
   }
@@ -165,7 +165,7 @@ void gen_op_terms(const shared_ptr<ir::Func> &func, ostream &os, TermsCtxtObject
 {
   for (auto term : func->get_top_sorted_terms())
   {
-    if (!term->is_operation())
+    if (!term->is_operation()) 
       continue;
 
     auto term_object_id = term->id();
@@ -273,10 +273,8 @@ void gen_op_terms(const shared_ptr<ir::Func> &func, ostream &os, TermsCtxtObject
       if (term->op_code().type() == ir::OpCode::Type::rotate)
         os << ", " << galois_keys_id;
     }
-
     os << ", ";
     gen_cipher_var_id(term_object_id, os);
-
     os << ");\n";
   }
 }
@@ -404,7 +402,6 @@ void gen_main_code(fheco::param_select::EncParams params,param_select::EncParams
             R"(
       ClearArgsInfo clear_inputs, clear_outputs;
       size_t func_slot_count;
-      parse_inputs_outputs_file(is, params.plain_modulus().value(), clear_inputs, clear_outputs, func_slot_count);
       BatchEncoder batch_encoder(context);
       KeyGenerator keygen(context);
       const SecretKey &secret_key = keygen.secret_key();
@@ -412,23 +409,23 @@ void gen_main_code(fheco::param_select::EncParams params,param_select::EncParams
       keygen.create_public_key(public_key);
       RelinKeys relin_keys;
       keygen.create_relin_keys(relin_keys);
-      GaloisKeys galois_keys;
-
-      keygen.create_galois_keys(get_rotation_steps_fhe(), galois_keys);
-
+      GaloisKeys galois_keys; 
+      keygen.create_galois_keys(galois_keys);
+      //keygen.create_galois_keys(get_rotation_steps_fhe(), galois_keys);
       Encryptor encryptor(context, public_key);
       Evaluator evaluator(context);
       Decryptor decryptor(context, secret_key);
-
       EncryptedArgs encrypted_inputs;
       EncodedArgs encoded_inputs;
-      prepare_he_inputs(batch_encoder, encryptor, clear_inputs, encrypted_inputs, encoded_inputs);
-      EncryptedArgs encrypted_outputs;
-      EncodedArgs encoded_outputs;
-
+      
       chrono::high_resolution_clock::time_point t;
       chrono::duration<double, milli> elapsed;
       t = chrono::high_resolution_clock::now();
+
+      parse_inputs_outputs_file(is, params.plain_modulus().value(), clear_inputs, clear_outputs, func_slot_count);
+      prepare_he_inputs(batch_encoder, encryptor, clear_inputs, encrypted_inputs, encoded_inputs);
+      EncryptedArgs encrypted_outputs;
+      EncodedArgs encoded_outputs;
 
       fhe(
         encrypted_inputs, encoded_inputs, encrypted_outputs, encoded_outputs, batch_encoder, encryptor, evaluator,
@@ -449,3 +446,4 @@ void gen_main_code(fheco::param_select::EncParams params,param_select::EncParams
       out.close();
   }
 } // namespace fheco::code_gen
+ 

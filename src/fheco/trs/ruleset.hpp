@@ -24,6 +24,8 @@ class Ruleset
 public:
   using RulesByRootOp = std::unordered_map<ir::OpCode::Type, std::vector<Rule>>;
 
+  static Ruleset simplification_ruleset(std::shared_ptr<ir::Func> func);
+
   static Ruleset depth_ruleset(std::shared_ptr<ir::Func> func);
 
   static Ruleset ops_cost_ruleset(std::shared_ptr<ir::Func> func);

@@ -5,16 +5,15 @@
 #include <fstream>
 #include <iostream>
 #include <ostream>
-#include <stdexcept>
+#include <stdexcept> 
 #include <string>
 #include <vector>
-#include <sstream>
-#include <random>
-using namespace std;
+#include <sstream> 
+#include <random> 
+#include <queue>
+using namespace std; 
 using namespace fheco;
 #include "../global_variables.hpp" 
-
-std::ofstream outFile("fhe_io_example.txt", std::ios::trunc);
 
 /*************************************************************** */
 // Function for generating random numbers
@@ -24,25 +23,81 @@ int getRandomNumber(int range) {
     std::uniform_int_distribution<int> dist(0, range);
     return dist(rng);
 }
-
-int64_t getRandomInt64(int64_t range) {
-    static std::random_device rd;         // Seed generator
-    static std::mt19937_64 rng(rd());     // 64-bit Mersenne Twister generator
-    std::uniform_int_distribution<int64_t> dist(0, range - 1);  // Exclusive upper bound
-    return dist(rng);
-}
-
-
 /**************************************************************** */
 // C++ equivalent of the treeGenerator function
-Ciphertext treeGenerator(int originalDepth, int maxDepth, int& seed, const std::string& regime) {
-    std::string localString = "";
-    
+Ciphertext build_polynomial_tree_from_file(queue<string> &tokens,std::unordered_map<std::string , int>& labels_values){
+   //std::cout<<"welcome in constant folding\n";
+    while (!tokens.empty())
+    {
+    //std::cout<<"hereee :"<<tokens.front()<<"\n";
+        if (tokens.front() == "(")
+        {
+            //std::cout<<"here\n";
+            tokens.pop();
+            string operationString = tokens.front();
+            tokens.pop();
+            string potential_step = "";
+            Ciphertext operand1 , operand2;
+            if (tokens.front() == "(")
+            {
+                operand1 = build_polynomial_tree_from_file(tokens,labels_values);
+            }
+            else
+            {
+                //std::cout<<"get op1 \n";
+                string VarName = tokens.front();
+                operand1 = Ciphertext(VarName);
+                int number = std::stoi(VarName.substr(1)); 
+                labels_values[VarName]=number ;
+                tokens.pop();
+            }
+            if (tokens.front() == "(")
+            {
+                operand2 = build_polynomial_tree_from_file(tokens,labels_values);
+                potential_step += " ";
+            }
+            else if (tokens.front() != ")")
+            {
+                //std::cout<<"get op2 \n";
+                string VarName = tokens.front();
+                operand2 = Ciphertext(VarName);
+                int number = std::stoi(VarName.substr(1)); 
+                labels_values[VarName]=number ;
+                potential_step = tokens.front();
+                tokens.pop();
+            }
+            // Check for the closing parenthesis
+            if (tokens.front() == ")")
+            {
+                tokens.pop();
+            }
+            if (potential_step.size() > 0)
+            {
+                if(operationString=="+"){
+                    return Ciphertext(operand1)+Ciphertext(operand2);
+                }else if(operationString=="*"){
+                    return Ciphertext(operand1)*Ciphertext(operand2);
+                }
+            }
+        }
+        else
+        {
+            string VarName = tokens.front();
+            int number = std::stoi(VarName.substr(1)); 
+            labels_values[VarName]=number ;
+            return Ciphertext(VarName);
+        }
+    }
+    throw logic_error("Invalid expression"); 
+}
+/****************************************************************** */
+Ciphertext treeGenerator(int originalDepth, int maxDepth, int& seed, const std::string& regime,std::unordered_map<std::string , int>& labels_values) {
+    std::string VarName = "";
+    int value = 0 ;
     if (originalDepth == maxDepth || maxDepth == originalDepth - 1) {
         int randomNum = (regime == "100-100") ? getRandomNumber(1) : getRandomNumber(1);
-        Ciphertext lhs = treeGenerator(originalDepth, maxDepth - 1, seed, regime);
-        Ciphertext rhs = treeGenerator(originalDepth, maxDepth - 1, seed, regime);
-
+        Ciphertext lhs = treeGenerator(originalDepth, maxDepth - 1, seed, regime,labels_values);
+        Ciphertext rhs = treeGenerator(originalDepth, maxDepth - 1, seed, regime,labels_values);
         if (randomNum == 1) {
             return lhs + rhs;
         } else {
@@ -55,16 +110,14 @@ Ciphertext treeGenerator(int originalDepth, int maxDepth, int& seed, const std::
         seed += 1;
 
         if (randomNum > 1) {
-            localString = std::to_string(getRandomNumber(1024));
+            value = getRandomNumber(1024) ; 
+            VarName = "x" + std::to_string(seed);
+            labels_values[VarName]=value ;
             seed += 1;
-            std::cout << originalDepth + 1 - maxDepth << std::endl;
-            int random = getRandomNumber(100);
-            string randomString = "c_" + std::to_string(std::rand() % 1000);
-            outFile << randomString << " 1 0 " << std::to_string(random) << std::endl; // in "1 0" : 1 for ciphertext not plaintext , and 0 for signed or not signed
-            return Ciphertext(randomString);
+            return Ciphertext(VarName);  // Return Ciphertext instance instead of Tree(Var)
         } else {
-            Ciphertext lhs = treeGenerator(originalDepth, maxDepth - 1, seed, regime);
-            Ciphertext rhs = treeGenerator(originalDepth, maxDepth - 1, seed, regime);
+            Ciphertext lhs = treeGenerator(originalDepth, maxDepth - 1, seed, regime,labels_values);
+            Ciphertext rhs = treeGenerator(originalDepth, maxDepth - 1, seed, regime,labels_values);
 
             if (randomNum == 1) {
                 return lhs + rhs;
@@ -73,56 +126,54 @@ Ciphertext treeGenerator(int originalDepth, int maxDepth, int& seed, const std::
             }
         }
     } else {
-        //integer endNode = (1024);
+        value = getRandomNumber(1024) ; 
+        VarName = "x" + std::to_string(seed);
+        labels_values[VarName]=value ;
         seed += 1;
-        int random = getRandomNumber(100);
-        string randomString = "c_" + std::to_string(std::rand() % 1000);
-        outFile << randomString << " 1 0 " << std::to_string(random) << std::endl; // in "1 0" : 1 for ciphertext not plaintext , and 0 for signed or not signed
-        return Ciphertext(randomString);
+        return Ciphertext(VarName);  // Return Ciphertext instance instead of Tree(Var)
     }
 }
 /*****************************************************/
-void fhe(int depth, int iteration, std::string regime) {
-    int seed = 9100 + (iteration - 1) * 100 + (depth * 100) + iteration;
-    Ciphertext result = treeGenerator(depth, depth, seed, regime);
-    result.set_output("result");
-
-    const std::string filePath = "fhe_io_example.txt";
-
-    // Open the input file for reading
-    std::ifstream inputFile(filePath);
-    if (!inputFile.is_open()) {
-        std::cerr << "Error: Unable to open file for reading.\n";
-        return;
+void fhe(int depth,int iteration, string regime) {
+    //vector<int> depths = {5, 10};
+    //vector<string> regimes = {"50-50", "100-50", "100-100"};
+    //int iteration = 1;
+    //int depth = depths[0];
+    bool construct_polynomial_from_file = true;
+    std::unordered_map<std::string, int> labels_values;
+    if(construct_polynomial_from_file){
+        std::string filename = "polynomial_trees/tree_" + regime + "_" + std::to_string(depth) + ".txt";
+        std::ifstream inFile(filename);
+        if (!inFile) {
+            std::cerr << "Error: Unable to open file " << filename << std::endl;
+            throw invalid_argument("Unable to open file ");
+        }
+        string polynomial_arithmetic_circuit = "";
+        std::getline(inFile, polynomial_arithmetic_circuit);
+        //std::cout<<"===>  Input expression :"<<polynomial_arithmetic_circuit<<" \n";
+        queue<string> tokens = fheco::split(polynomial_arithmetic_circuit);
+        Ciphertext result = build_polynomial_tree_from_file(tokens,labels_values);
+        result.set_output("result");
+    }else{
+        int seed = 9100 + (iteration - 1) * 100 + (depth*100) + iteration;
+        Ciphertext result = treeGenerator(depth, depth, seed, regime,labels_values);
+        result.set_output("result");
     }
-
-    int lineCount = 0;
-    std::string line;
-    std::stringstream fileContent;
-
-    while (std::getline(inputFile, line)) {
-        lineCount++;
-        fileContent << line << '\n';
+    // update io file
+    string inputs_file_name = "fhe_io_example.txt" ;
+    std::ofstream input_file(inputs_file_name);
+    /**********************************************************/ 
+    string header = "1 "+std::to_string(labels_values.size())+" 1 \n";
+    input_file << header;
+    string entrie ="" ;
+    for(const auto&pair : labels_values){
+        entrie=pair.first+" 1 0 "+std::to_string(pair.second)+" \n";
+        input_file << entrie;
     }
-    inputFile.close();
-
-    // Convert file content to string and remove any leading newline
-    std::string fileData = fileContent.str();
-    if (!fileData.empty() && fileData[0] == '\n') {
-        fileData.erase(0, 1);
-    }
-
-    // Open the file for writing and overwrite its content
-    std::ofstream outputFile(filePath, std::ios::trunc);
-    if (!outputFile.is_open()) {
-        std::cerr << "Error: Unable to open file for writing.\n";
-        return;
-    }
-
-    outputFile << "1 " << std::to_string(lineCount) << " 1\n";
-    outputFile << fileData;
-
-    outputFile.close();
+    // output entrie
+    entrie = "result 1 1 \n";
+    input_file << entrie;
+    input_file.close();
 }
 
 /***************************************************/
@@ -136,19 +187,18 @@ int main(int argc, char **argv) {
     auto window = 0;
     bool cse = true;
     bool const_folding = true;
-   
-    /***************************/
-    /**************************/
     bool call_quantifier = true;
-    bool vectorized = true;
+    bool vectorize_code = true;
     /**************************/
     // Argument validation
-    if (argc < 4) {
-        throw invalid_argument("Some arguments are lacking, needed arguments are: depth, iteration, regime");
+    if (argc < 5) {
+        throw invalid_argument("Some arguments are lacking, needed arguments are: depth, iteration, regime , vectorize_code");
     }
     int depth = stoi(argv[1]);
     int iteration = stoi(argv[2]);
     string regime = argv[3];
+    vectorize_code = stoi(argv[4]);
+    
     if (cse) {
         Compiler::enable_cse();
         Compiler::enable_order_operands();
@@ -161,20 +211,20 @@ int main(int argc, char **argv) {
         Compiler::enable_const_folding();
     } else {
         Compiler::disable_const_folding();
-    }
+    } 
     /********************************************/
+    //Compiler::enable_auto_enc_params_selection();
     chrono::high_resolution_clock::time_point t;
     chrono::duration<double, milli> elapsed;
     t = chrono::high_resolution_clock::now();
-    string func_name = "fhe";
+    string func_name = "fhe"; 
     size_t slot_count = 1;
-    if(vectorized){
-        int benchmark_type = UNSTRUCTURED_WITH_ONE_OUTPUT;  // output_number = 1  , structured = 0
+    if(vectorize_code){
         const auto &func = Compiler::create_func(func_name, slot_count, 20, false, true);
         fhe(depth, iteration, regime);
         string gen_name = "_gen_he_" + func_name;
         string gen_path = "he/" + gen_name;
-        // Creating header and source files
+        // Creating header and source files 
         ofstream header_os(gen_path + ".hpp");
         if (!header_os) {
             throw logic_error("Failed to create header file");
@@ -184,15 +234,12 @@ int main(int argc, char **argv) {
             throw logic_error("Failed to create source file");
         }
         cout << " window is " << window << endl;
-        Compiler::gen_vectorized_code(func, window, benchmark_type);  // add a flag to specify if the benchmark is structured or no
-        if (SIMPLIFICATION_WITH_EGRAPHS) {
-        //   Compiler_Simplification::compile(func, header_os, gen_name + ".hpp", source_os, true, 0);
-        } else {
-          // Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
-          auto ruleset = Compiler::Ruleset::ops_cost;
-          auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
-          Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
-        }        /************/elapsed = chrono::high_resolution_clock::now() - t;
+        Compiler::gen_vectorized_code(func, window);  // add a flag to specify if the benchmark is structured or no
+        auto ruleset = Compiler::Ruleset::depth;
+        auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
+        Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
+        Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
+        /************/elapsed = chrono::high_resolution_clock::now() - t;
         cout << elapsed.count() << " ms\n";
         if (call_quantifier)
         {
@@ -203,6 +250,9 @@ int main(int argc, char **argv) {
     }else{
         const auto &func = Compiler::create_func(func_name, slot_count, 20, false, true);
         fhe(depth, iteration, regime);
+        std::string updated_inputs_file_name = "fhe_io_example_adapted.txt" ;
+        std::string inputs_file_name = "fhe_io_example.txt";
+        util::copyFile(inputs_file_name,updated_inputs_file_name);
         string gen_name = "_gen_he_" + func_name;
         string gen_path = "he/" + gen_name;
         // Creating header and source files
@@ -215,9 +265,10 @@ int main(int argc, char **argv) {
             throw logic_error("Failed to create source file");
         }
         cout << " window is " << window << endl;
-        auto ruleset = Compiler::Ruleset::ops_cost;
+        auto ruleset = Compiler::Ruleset::simplification_ruleset;
         auto rewrite_heuristic = trs::RewriteHeuristic::bottom_up;
         Compiler::compile(func, ruleset, rewrite_heuristic, header_os, gen_name + ".hpp", source_os);
+        Compiler::gen_he_code(func, header_os, gen_name + ".hpp", source_os);
         /************/elapsed = chrono::high_resolution_clock::now() - t;
         cout << elapsed.count() << " ms\n";
         if (call_quantifier)

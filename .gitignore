@@ -37,6 +37,7 @@
 .vscode/
 
 # Build
+egraph/target/** 
 bin/
 lib/
 build/

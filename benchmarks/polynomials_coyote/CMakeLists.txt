@@ -39,3 +39,10 @@ add_custom_target(copy_my_file_4polynomials_coyote ALL
     DEPENDS ${SOURCE_FILE}
     COMMENT "Copying ${SOURCE_FILE_4} to ${DESTINATION_FILE_4}"
 )
+
+# Define source and destination paths
+set(TREES_SOURCE_DIR ${CMAKE_SOURCE_DIR}/benchmarks/polynomials_coyote/polynomial_trees)  # Change to your actual source repo path
+set(TREES_DEST_DIR ${CMAKE_SOURCE_DIR}/build/benchmarks/polynomials_coyote/)  # Destination directory
+
+# Copy the repository with all its files
+file(COPY ${TREES_SOURCE_DIR} DESTINATION ${TREES_DEST_DIR})
