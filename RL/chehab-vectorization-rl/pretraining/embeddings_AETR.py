@@ -14,7 +14,7 @@ def print(*args, **kwargs):
     kwargs['flush'] = True
     __builtins__.print(*args, **kwargs)
 
-# Set device to GPU 
+
 if torch.cuda.is_available() and sys.argv[1].lower() == "train":
     device = torch.device("cuda")
 else :

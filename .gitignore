@@ -44,6 +44,7 @@ build/
 *.build
 env
 thirdparty/
-./RL/rl_venv
+RL/rl_venv/
+egraphs/
 # Jupyter checkpoints
 .ipynb_checkpoints/

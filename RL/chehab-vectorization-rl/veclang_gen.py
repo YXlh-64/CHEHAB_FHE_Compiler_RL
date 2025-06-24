@@ -7,15 +7,11 @@ sys.path.append(os.path.abspath("./pytrs"))
 from pytrs import MAX_INT_TOKENS   # upper bound for arbitrary integers
 from pytrs import (tokenize)  
 
-# -----------------------------------------------------------------------------
 # configurable ranges
-# -----------------------------------------------------------------------------
 MAX_INT_NUMBER = MAX_INT_TOKENS          # ± range for random constants
 VARIABLE_NAMES = [f"v{i}" for i in range(1, 2_000)]
 
-# -----------------------------------------------------------------------------
 # operator families
-# -----------------------------------------------------------------------------
 SCALAR_UNARY_OPS   = ["-"]                # unary minus
 SCALAR_BINARY_OPS  = ["+", "-", "*"]
 
@@ -24,17 +20,13 @@ VECTOR_N_ARY_OPS   = ["VecAdd", "VecMinus", "VecMul"]
 
 ROT_OP             = "<<"                 # (<< <vector> k)
 
-# -----------------------------------------------------------------------------
 # helpers
-# -----------------------------------------------------------------------------
 def rnd_var()  -> str: return random.choice(VARIABLE_NAMES)
 def rnd_int()  -> str: return str(random.randint(-MAX_INT_NUMBER,
                                                  MAX_INT_NUMBER))
 def rnd_term() -> str: return random.choice([rnd_var(), rnd_int()])
 
-# -----------------------------------------------------------------------------
 # scalar expression
-# -----------------------------------------------------------------------------
 def gen_scalar(max_depth: int) -> str:
     if max_depth <= 0:
         return rnd_term()
@@ -51,9 +43,7 @@ def gen_scalar(max_depth: int) -> str:
 
     return rnd_term()
 
-# -----------------------------------------------------------------------------
 # (Vec ...) container   – exactly vec_len fields,  padded with 0
-# -----------------------------------------------------------------------------
 def gen_vec_container(max_depth: int, vec_len: int) -> str:
     produced = random.randint(1, vec_len)      # how many *real* scalars
     elems = [gen_scalar(max_depth-1) for _ in range(produced)]
@@ -61,9 +51,7 @@ def gen_vec_container(max_depth: int, vec_len: int) -> str:
     random.shuffle(elems)                      # random zero positions
     return f"(Vec {' '.join(elems)})"
 
-# -----------------------------------------------------------------------------
 # vector expression  (VecNeg / VecAdd / VecMul / VecMinus / <<)
-# -----------------------------------------------------------------------------
 def gen_vector(max_depth: int, vec_len: int) -> str:
     if max_depth <= 0:
         return gen_vec_container(0, vec_len)
@@ -100,15 +88,13 @@ def gen_vector(max_depth: int, vec_len: int) -> str:
             [gen_vec_container(max_depth-1, vec_len),
              gen_vector(max_depth-1, vec_len)]
         )
-        k = random.randint(1, vec_len)        # legal shift amount
+        k = random.randint(1, vec_len)        
         return f"(<< {child} {k})"
 
-    # leaf – direct container -------------------------------------------------
+
     return gen_vec_container(max_depth, vec_len)
 
-# -----------------------------------------------------------------------------
-# top‑level expression
-# -----------------------------------------------------------------------------
+
 def generate_expression(max_depth: int, vec_size: int, MAX_SEQ_LEN ) -> str:
     flavour = random.choices(
         ["vec_container", "vector_op", "scalar"],
@@ -137,9 +123,7 @@ def generate_multiple_expressions(n: int, max_depth: int,
                                   vector_size: int, max_seq) -> list[str]:
     return [generate_expression(max_depth, vector_size, max_seq) for _ in range(n)]
 
-# -----------------------------------------------------------------------------
-# balanced dataset writer  (unchanged logic, now uses new generator)
-# -----------------------------------------------------------------------------
+
 def main():
     random.seed(1337)
 
