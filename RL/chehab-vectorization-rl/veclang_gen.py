@@ -166,11 +166,5 @@ def main():
                 idx += 1
 
 
-def check_max_len(): 
-    d = open("pretraining/dataset_balanced_ROT_32_15_5000000.txt","r").readlines()
-
-    d = [tokenize(x) for x in d]
-    
-    print(max([len(x) for x in d]))
 if __name__ == "__main__":
     main()

@@ -319,7 +319,7 @@ def collate_fn(batch):
 def train_autoenc(model, train_dataset):
     accumulation_steps = 1
 
-    train_sampler = None #DistributedSampler(train_dataset) if ddp else None
+    train_sampler = None # DistributedSampler(train_dataset) if ddp else None
     train_loader = DataLoader(
         train_dataset,
         batch_size=config.batch_size,
