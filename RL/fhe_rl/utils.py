@@ -1,13 +1,13 @@
 import os, sys
 from pytrs import create_rules as _create_rules,parse_sexpr,Expr,Const,Var,Op
-from embeddings_AETR_CLS import TreeAutoencoder
+
 import torch, torch.nn as nn
-from embeddings_AETR_CLS import TreeAutoencoder,get_expression_cls_embedding,flatten_expr
+from .embeddings_AETR_CLS import TreeAutoencoder,get_expression_cls_embedding,flatten_expr
 
 def create_rules(vector_size=8):
     return _create_rules(vector_size=vector_size)
 
-def load_embedding_model(checkpoint_path=None, device="cpu"):
+def load_embedding_model(checkpoint_path=None, device="cuda"):
     embeddings_model = TreeAutoencoder()  
     state_dict = torch.load(checkpoint_path, map_location=device,weights_only=True)
     new_sd = {k[len("module.") :] if k.startswith("module.") else k: v for k, v in state_dict.items()}

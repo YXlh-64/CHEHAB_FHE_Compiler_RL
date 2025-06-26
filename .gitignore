@@ -45,6 +45,8 @@ build/
 env
 thirdparty/
 RL/rl_venv/
+RL/pytrs/pytrs.egg-info/
 egraphs/
 # Jupyter checkpoints
 .ipynb_checkpoints/
+**/__pycache__/

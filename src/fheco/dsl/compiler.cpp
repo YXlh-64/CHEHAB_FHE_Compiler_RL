@@ -498,28 +498,30 @@ void Compiler::gen_vectorized_code(const std::shared_ptr<ir::Func> &func, int wi
 }
 /***********************************************************************/
 
-void Compiler::call_vectorizer(int vector_width)
+
+void Compiler::call_vectorizer(int /*vector_width*/)
 {
     namespace fs = std::filesystem;
 
     /*-----------------------------------------------------------------
-      1.  Remember where we are **before** we move anywhere
+      1.  Save caller’s working directory
     -----------------------------------------------------------------*/
     const fs::path original_cwd = fs::current_path();
 
     /*-----------------------------------------------------------------
-      2.  Build absolute paths to all artefacts while we are still
-          in the caller’s directory.
+      2.  Locate everything we need
+          (project_root is the parent of fhe_rl and rl_venv)
     -----------------------------------------------------------------*/
-    const fs::path project_root = fs::absolute("../../../RL/chehab-vectorization-rl");
-    const fs::path python_bin   = fs::absolute("../../../RL/rl_venv/bin/python3");
-    const fs::path model_file   = project_root / "trained_models/model_10793668.zip";
-    const fs::path expr_file    = fs::absolute("../expression.txt");
-    const fs::path vect_file    = fs::absolute("../vectorized_code.txt");
+    const fs::path project_root          = fs::absolute("../../../RL");
+    const fs::path venv_activate         = project_root / "rl_venv/bin/activate";
+    const fs::path model_file            = project_root / "fhe_rl/trained_models/model_10793668.zip";
+    const fs::path embeddings_model_file = project_root / "fhe_rl/trained_models/embeddings_ROT_15_32_5m_10742576.pth";
+    const fs::path expr_file             = fs::absolute("../expression.txt");
+    const fs::path vect_file             = fs::absolute("../vectorized_code.txt");
 
     /*-----------------------------------------------------------------
-      3.  Switch to the project root so that `model6.py` can resolve
-          all its own relative imports.
+      3.  Make sure Python will see `fhe_rl` on sys.path
+          (we need the *parent* of the package on cwd)
     -----------------------------------------------------------------*/
     std::error_code ec;
     fs::current_path(project_root, ec);
@@ -530,22 +532,26 @@ void Compiler::call_vectorizer(int vector_width)
     }
 
     /*-----------------------------------------------------------------
-      4.  Assemble the shell command.
-          NB: wrap every path in double quotes to survive spaces.
+      4.  Build one bash command:
+          - source the venv
+          - then run the package in that environment
+          Every path lives inside single quotes to survive spaces.
     -----------------------------------------------------------------*/
     std::ostringstream cmd;
-    cmd << '"' << python_bin.string() << "\" "
-        << "model6.py run "
-        << '"' << model_file.string() << "\" "
-        << '"' << expr_file.string()  << "\" "
-        << '"' << vect_file.string()  << '"';
+    cmd << "bash -c \""
+        << "source '" << venv_activate.string() << "'"
+        << " && python -m fhe_rl run "
+        << "'" << model_file.string()            << "' "
+        << "'" << embeddings_model_file.string() << "' "
+        << "'" << expr_file.string()             << "' "
+        << "'" << vect_file.string()             << "'"
+        << "\"";
 
     std::cout << "Executing: " << cmd.str() << '\n';
-
     const int rc = std::system(cmd.str().c_str());
 
     /*-----------------------------------------------------------------
-      5.  Go back where we came from, even if the system() call failed.
+      5.  Restore caller’s working directory
     -----------------------------------------------------------------*/
     fs::current_path(original_cwd, ec);
     if (ec) {

@@ -45,7 +45,7 @@ def run_agent(expressions_file: str,embeddings_model, model_filepath: str,output
         },
     )
     
-    model = model.load(model_filepath)
+    model = model.load(model_filepath,device="cuda")
     
     import types
     model.policy.predict = types.MethodType(predict_method, model.policy)

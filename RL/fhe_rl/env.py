@@ -4,7 +4,7 @@ from gymnasium import spaces
 from pytrs import parse_sexpr, calculate_cost, Expr, Const, Var, Op,expr_to_str
 import torch
 
-from embeddings_AETR_CLS import TreeAutoencoder, get_expression_cls_embedding
+from .embeddings_AETR_CLS import TreeAutoencoder, get_expression_cls_embedding
 class fheEnv(gym.Env):
     def __init__(self, rules_list, expressions, max_positions=2,embeddings_model=None):
         
