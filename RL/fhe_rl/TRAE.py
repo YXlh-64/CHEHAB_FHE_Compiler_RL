@@ -1,8 +1,7 @@
 import os
 import builtins
-# ------------------------------------------------------------------
-# 0) Environment tweaks
-# ------------------------------------------------------------------
+import sys 
+
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 import torch
@@ -15,6 +14,7 @@ import random
 import sys
 import time
 import numpy as np
+
 from pytrs import (
     Op,
     VARIABLE_RANGE,
@@ -23,7 +23,6 @@ from pytrs import (
     PAREN_OPEN,
     node_to_id,
     parse_sexpr,
-    get_normal_depth,
     tokenize,
     MAX_INT_TOKENS
 )
@@ -623,5 +622,38 @@ def main():
         print(txt)
 
 
+
+def demo():
+    model = TRAE()
+    model.eval()
+    state_dict = torch.load("./fhe_rl/trained_models/embeddings_ROT_15_32_5m_10742576.pth", map_location=device)
+    new_sd = {k[len("module.") :] if k.startswith("module.") else k: v for k, v in state_dict.items()}
+    model.load_state_dict(new_sd)
+    model.to(device)
+
+    expr_str1 = "(VecAdd (Vec v2_0 v2_1 v2_2 0 0 0 0 0 0) (VecAdd (Vec 3 3 3 0 0 0 0 0 0) (VecMul (Vec v1_0 v1_1 v1_2 0 0 0 0 0 0) (Vec 5 5 5 0 0 0 0 0 0))))"
+    
+
+    expr_str2 = "(VecAdd (Vec a b c 0 0 0 0 0 0) (VecAdd (Vec 3 3 3 0 0 0 0 0 0) (VecMul (Vec v1_0 v1_1 v1_2 0 0 0 0 0 0) (Vec 5 5 5 0 0 0 0 0 0))))"
+    
+    expr1 = parse_sexpr(expr_str1)
+    expr2 = parse_sexpr(expr_str2)
+    cls_vector1 = get_expression_cls_embedding(expr1, model)
+    cls_vector2 = get_expression_cls_embedding(expr2, model)
+
+
+    
+    # Check exact equality
+    are_equal = torch.all(cls_vector1 == cls_vector2).item()
+    print(f"Embeddings are exactly equal: {are_equal}")
+    
+    # Check similarity
+    cosine_similarity = torch.nn.functional.cosine_similarity(cls_vector1, cls_vector2, dim=1).item()
+    l2_distance = torch.norm(cls_vector1 - cls_vector2).item()
+    
+    # print(f"Cosine similarity: {cosine_similarity:.6f}")
+    # print(f"L2 distance: {l2_distance:.6f}")
+    
+
 if __name__ == "__main__":
-    main()
+    demo()
