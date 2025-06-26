@@ -15,10 +15,6 @@ import random
 import sys
 import time
 import numpy as np
-
-# Extend path for local package
-sys.path.append(os.path.abspath("./pytrs"))
-from .veclang_gen import generate_multiple_expressions, MAX_INT_NUMBER
 from pytrs import (
     Op,
     VARIABLE_RANGE,
@@ -28,7 +24,8 @@ from pytrs import (
     node_to_id,
     parse_sexpr,
     get_normal_depth,
-    tokenize
+    tokenize,
+    MAX_INT_TOKENS
 )
 
 torch.set_float32_matmul_precision("high")
@@ -36,7 +33,7 @@ torch.set_float32_matmul_precision("high")
 # ------------------------------------------------------------------
 # Helper: force-flushing print & memory reporter
 # ------------------------------------------------------------------
-def print(*args, **kwargs):  # noqa: A001
+def print(*args, **kwargs):  
     kwargs["flush"] = True
     builtins.print(*args, **kwargs)
 
@@ -94,15 +91,15 @@ debug_print_memory("After device setup")
 
 
 # ------------------------------------------------------------------
-# 1) Configuration and token setup
+# Configuration and token setup
 # ------------------------------------------------------------------
 class Config:
     max_gen_length = 20000
 
-    vocab_size = CONST_OFFSET + MAX_INT_NUMBER + 2 + 1 + 1
-    start_token = CONST_OFFSET + MAX_INT_NUMBER
-    end_token = CONST_OFFSET + MAX_INT_NUMBER + 1
-    pad_token = CONST_OFFSET + MAX_INT_NUMBER + 2
+    vocab_size = CONST_OFFSET + MAX_INT_TOKENS + 2 + 1 + 1
+    start_token = CONST_OFFSET + MAX_INT_TOKENS
+    end_token = CONST_OFFSET + MAX_INT_TOKENS + 1
+    pad_token = CONST_OFFSET + MAX_INT_TOKENS + 2
 
     cls_token = vocab_size
     vocab_size += 1  # include CLS
@@ -125,7 +122,7 @@ class Config:
 config = Config()
 
 # ------------------------------------------------------------------
-# 2) Expression processing helpers
+# Expression processing helpers
 # ------------------------------------------------------------------
 def dfs_traverse(expr, depth=0, node_list=None):
     if node_list is None:
@@ -160,7 +157,7 @@ def flatten_expr(expr):
 
 
 # ------------------------------------------------------------------
-# 3) Positional encoding
+# Positional encoding
 # ------------------------------------------------------------------
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=1024):
@@ -180,7 +177,7 @@ class PositionalEncoding(nn.Module):
 
 
 # ------------------------------------------------------------------
-# 4) Transformer autoencoder
+# Transformer autoencoder
 # ------------------------------------------------------------------
 class TransformerAutoencoder(nn.Module):
     def __init__(self):
@@ -265,9 +262,9 @@ class TransformerAutoencoder(nn.Module):
 
 
 # ------------------------------------------------------------------
-# 5) TreeAutoencoder wrapper
+# TRAE wrapper
 # ------------------------------------------------------------------
-class TreeAutoencoder(nn.Module):
+class TRAE(nn.Module):
     def __init__(self):
         super().__init__()
         self.model = TransformerAutoencoder()
@@ -288,7 +285,7 @@ class TreeAutoencoder(nn.Module):
 
 
 # ------------------------------------------------------------------
-# 6) Collate function
+# Collate function
 # ------------------------------------------------------------------
 def collate_fn(batch):
     inputs, targets = [], []
@@ -314,9 +311,9 @@ def collate_fn(batch):
 
 
 # ------------------------------------------------------------------
-# 7) Training function
+# Training function
 # ------------------------------------------------------------------
-def train_autoenc(model, train_dataset):
+def train(model, train_dataset):
     accumulation_steps = 1
 
     train_sampler = None # DistributedSampler(train_dataset) if ddp else None
@@ -417,7 +414,7 @@ def train_autoenc(model, train_dataset):
 
 
 # ------------------------------------------------------------------
-# 8) Evaluation / utility helpers 
+# Evaluation / utility helpers 
 # ------------------------------------------------------------------
 def calculate_accuracy(preds, targets):
     exact_matches, correct_tokens, total_tokens = 0, 0, 0
@@ -463,7 +460,7 @@ def calculate_accuracy(preds, targets):
     }
 
 
-def test_autoenc(model, dataset, return_samples=False, stdout=False):
+def test(model, dataset, return_samples=False, stdout=False):
     model.eval()
     all_preds, all_targets, sample_examples = [], [], []
 
@@ -560,9 +557,9 @@ def get_expression_cls_embedding(expr, model):
 
 
 # ------------------------------------------------------------------
-# 9) Main entry-point
+# Main 
 # ------------------------------------------------------------------
-def demo_run():
+def main():
     if sys.argv[1].lower() == "train":
         # -----------------------------------------------------------
         # PART:  each rank loads **only its shard** of the big file
@@ -590,27 +587,27 @@ def demo_run():
             total = len(local_exprs) * ddp_world_size
             print(f"Global dataset (approx) = {total}")
 
-        model = TreeAutoencoder().to(device)
+        model = TRAE().to(device)
         debug_print_memory("model to(device)")  
 
         if ddp:
             model = AEDDP(model, device_ids=[deviceids[ddp_rank]])
             debug_print_memory("after DDP wrap")  
 
-        train_autoenc(model, train_dataset)
+        train(model, train_dataset)
 
         if ddp:
             dist.destroy_process_group()
 
     elif sys.argv[1].lower() == "test":
-        model = TreeAutoencoder()
+        model = TRAE()
         state_dict = torch.load(sys.argv[2], map_location=device)
         new_sd = {k[len("module.") :] if k.startswith("module.") else k: v for k, v in state_dict.items()}
         model.load_state_dict(new_sd)
         model.to(device)
 
         test_expressions = []
-        with open("pretraining/chehab_bench.txt", "r") as f:
+        with open("chehab_bench.txt", "r") as f:
             for line in f:
                 test_expressions.append(line.strip())
 
@@ -619,7 +616,7 @@ def demo_run():
             
 
         print("Starting evaluation…")
-        acc, txt = test_autoenc(model, test_dataset, stdout=True)
+        acc, txt = test(model, test_dataset, stdout=True)
         print("\nFinal Test Results")
         print(f"Exact-match accuracy : {acc['exact']*100:.2f}%")
         print(f"Token-level accuracy : {acc['token']*100:.2f}%")
@@ -627,4 +624,4 @@ def demo_run():
 
 
 if __name__ == "__main__":
-    demo_run()
+    main()
