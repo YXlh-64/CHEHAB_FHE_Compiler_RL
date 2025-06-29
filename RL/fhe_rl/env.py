@@ -5,6 +5,22 @@ from pytrs import parse_sexpr, calculate_cost, Expr, Const, Var, Op,expr_to_str
 import torch
 
 from .TRAE import TRAE, get_expression_cls_embedding
+
+
+
+RESET   = "\033[0m"
+
+BOLD    = "\033[1m"
+DIM     = "\033[2m"
+
+RED     = "\033[31m"
+GREEN   = "\033[32m"
+YELLOW  = "\033[33m"
+BLUE    = "\033[34m"
+MAGENTA = "\033[35m"
+CYAN    = "\033[36m"
+
+
 class fheEnv(gym.Env):
     def __init__(self, rules_list, expressions, max_positions=2,embeddings_model=None):
         
@@ -54,8 +70,9 @@ class fheEnv(gym.Env):
         terminated = False
         truncated = False
         reward = 0
-        print("Old expression : ",self.expression)
-        print("Old Cost : ",self.current_cost)
+        print(f"\n{CYAN}{'-'*100}{RESET}")
+        print(f"{BOLD}{MAGENTA}Old expression{RESET}: {YELLOW}{self.expression}{RESET}")
+        print(f"{BOLD}{MAGENTA}Old cost      {RESET}: {RED}{self.current_cost}{RESET}")
 
         if rule_name == "END":
             terminated = True
@@ -76,11 +93,13 @@ class fheEnv(gym.Env):
                 terminated = True
                 reward = self.calculate_final_reward()
         info = {"expression": self.expression}
-        print("New expression : ",self.expression)
-        print("New Cost : ",self.current_cost)
-        print("Reward : ",reward)
-        print("Rule Name : ",rule_name)
-        print("At Position : ",pos_idx)
+        reward_color = GREEN if reward >= 0 else RED
+        print(f"{BOLD}{MAGENTA}New expression{RESET}: {YELLOW}{self.expression}{RESET}")
+        print(f"{BOLD}{MAGENTA}New cost      {RESET}: {RED}{self.current_cost}{RESET}")
+        print(f"{BOLD}{MAGENTA}Reward        {RESET}: {reward_color}{reward}{RESET}")
+        print(f"{BOLD}{MAGENTA}Rule name     {RESET}: {CYAN}{rule_name}{RESET}")
+        print(f"{BOLD}{MAGENTA}At position   {RESET}: {BLUE}{pos_idx}{RESET}")
+        print(f"{CYAN}{'-'*100}{RESET}")
         embedding = self._embed_expression(self.expression)
         if embedding is None:
             terminated = True
