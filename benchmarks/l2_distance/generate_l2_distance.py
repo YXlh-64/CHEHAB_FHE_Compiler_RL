@@ -7,6 +7,7 @@ parser.add_argument("--slot_count", required=True,type=int, help="Slot_count", d
 # Parse arguments
 args = parser.parse_args()
 function_slot_count = args.slot_count
+print("Function slot count is : ", function_slot_count)
 ######################################################
 c1 = np.random.randint(0,10,(function_slot_count))
 c2 = np.random.randint(0,10,(function_slot_count))

@@ -39,6 +39,7 @@ except subprocess.CalledProcessError as e:
     print(f"Command failed with error:\n{e.stderr.decode('utf-8')}")    
 
 benchmark_folders = ["max","sort","lin_reg","hamming_dist","poly_reg","l2_distance","dot_product","box_blur","gx_kernel","gy_kernel","roberts_cross","matrix_mul"] 
+benchmark_folders = ["l2_distance"]
 exceptions = ["max","sort"]
 benchmarks_slot_counts  = {
     "max" : list(range(3,33)), 
@@ -49,7 +50,7 @@ benchmarks_slot_counts  = {
 ###### Configurations ############## 
 cse_enabled = 1
 vectorize_code = 0
-slot_counts= list(range(1,33))
+slot_counts= [32]#list(range(1,33))
 iterations = 5
 window_size = 0   
 depths = [5,10] 

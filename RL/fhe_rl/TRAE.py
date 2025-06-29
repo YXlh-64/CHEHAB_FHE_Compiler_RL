@@ -93,7 +93,7 @@ debug_print_memory("After device setup")
 # Configuration and token setup
 # ------------------------------------------------------------------
 class Config:
-    max_gen_length = 20000
+    max_gen_length = 25122
 
     vocab_size = CONST_OFFSET + MAX_INT_TOKENS + 2 + 1 + 1
     start_token = CONST_OFFSET + MAX_INT_TOKENS
@@ -109,7 +109,7 @@ class Config:
     num_decoder_layers = 4
     dim_feedforward = 512
     transformer_dropout = 0.2
-    max_seq_length = 20000
+    max_seq_length = 25200
 
     batch_size = 16 
     learning_rate = 3e-4
@@ -622,15 +622,26 @@ def main():
         print(txt)
 
 
+def parameter_counts(model):
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    non_trainable_params = total_params - trainable_params
+    return trainable_params, non_trainable_params
+
 
 def demo():
     model = TRAE()
     model.eval()
-    state_dict = torch.load("./fhe_rl/trained_models/embeddings_ROT_15_32_5m_10742576.pth", map_location=device)
+    state_dict = torch.load("./fhe_rl/trained_models/model_Transformer_ddp_10399047_epoch_5000000.pth", map_location=device)
     new_sd = {k[len("module.") :] if k.startswith("module.") else k: v for k, v in state_dict.items()}
     model.load_state_dict(new_sd)
     model.to(device)
 
+    
+    trainable, frozen = parameter_counts(model)
+    print(f"[Rank {ddp_rank}] Trainable params     : {trainable:,}")
+    print(f"[Rank {ddp_rank}] Non-trainable params : {frozen:,}")
+    
     expr_str1 = "(VecAdd (Vec v2_0 v2_1 v2_2 0 0 0 0 0 0) (VecAdd (Vec 3 3 3 0 0 0 0 0 0) (VecMul (Vec v1_0 v1_1 v1_2 0 0 0 0 0 0) (Vec 5 5 5 0 0 0 0 0 0))))"
     
 
