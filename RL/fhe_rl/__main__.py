@@ -38,7 +38,7 @@ if __name__ == "__main__":
             usage()
         embeddings_path = sys.argv[2]
         embeddings = load_embeddings(embeddings_path)
-        train_agent("./all_expressions_cleaned.txt", embeddings, total_timesteps=1_000_000)
+        train_agent(".dataset/all_expressions_cleaned.txt", embeddings, total_timesteps=1_000_000)
 
     # ─────────────────────────────── TEST ─────────────────────────────
     elif mode == "test":
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         agent_zip       = sys.argv[2]
         embeddings_path = sys.argv[3]
         embeddings = load_embeddings(embeddings_path)
-        test_agent("./test_expressions_merged.txt", embeddings, agent_zip)
+        test_agent(".dataset/test.txt", embeddings, agent_zip)
 
     # ─────────────────────────────── RUN ──────────────────────────────
     elif mode == "run":
