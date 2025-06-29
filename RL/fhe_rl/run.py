@@ -61,21 +61,28 @@ def run_agent(expressions_file: str,embeddings_model, model_filepath: str,output
     steps = 0
 
     last_expr = None
-    last_cost = None
     final_expr = None
+    bad_count = 0
+
     while not done:
         last_expr = fhe_env.expression
         last_cost = fhe_env.current_cost
 
         action, _ = model.predict(obs, deterministic=True)
         obs, rewards, dones, infos = env.step(action)
-        if rewards[0] < 0 and not final_expr:
-            final_expr = last_expr
-        if rewards[0] > 0 and final_expr:
+
+        if rewards[0] < 0:
+            bad_count += 1
+            if bad_count == 1:
+                final_expr = last_expr
+        else:
+            bad_count = 0
             final_expr = None
-        if rewards[0] < 0 and final_expr:
+
+        if bad_count >= 3:
             final_expr = last_expr
             break
+
         done = bool(dones[0])
         steps += 1
     if not final_expr:
