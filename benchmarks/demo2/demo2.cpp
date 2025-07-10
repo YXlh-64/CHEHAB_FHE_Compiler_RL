@@ -31,7 +31,7 @@ void fhe(int slot_count)
 
   output1 = c * d;
   output2 = g + h;
-  output3 = a;
+  output3 = a * b;
   output4 = f * b;
   
   output1.set_output("output1");
