@@ -23,7 +23,8 @@ def load_embeddings(path: str):
         print(f"Error: embeddings model '{path}' not found.")
         sys.exit(1)
     return load_embedding_model(checkpoint_path=path, device="cuda")
-  
+
+
 
 if __name__ == "__main__":
 

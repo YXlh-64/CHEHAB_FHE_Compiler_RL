@@ -12,7 +12,7 @@ from .callbacks import linear_schedule,EntCoefScheduler
 def train_agent(expressions_file: str,embeddings_model, total_timesteps: int = 1_000_000, num_envs: int = 1):
     expressions = load_expressions(expressions_file)
     max_positions = 32
-    rules_list  = create_rules()
+    rules_list  = create_rules("rules.txt")
     rules_list["END"] = None
     job_id = os.environ.get("SLURM_JOB_ID", "jobid")
     run_name = f"model_{job_id}"

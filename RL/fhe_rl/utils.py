@@ -4,8 +4,8 @@ from pytrs import create_rules as _create_rules,parse_sexpr,Expr,Const,Var,Op
 import torch, torch.nn as nn
 from .TRAE import TRAE,get_expression_cls_embedding,flatten_expr
 
-def create_rules(vector_size=8):
-    return _create_rules(vector_size=vector_size)
+def create_rules(path):
+    return _create_rules(path=path)
 
 def load_embedding_model(checkpoint_path=None, device="cpu"):
     embeddings_model = TRAE()  

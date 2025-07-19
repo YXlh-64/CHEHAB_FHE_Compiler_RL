@@ -14,7 +14,7 @@ def run_agent(expressions_file: str,embeddings_model, model_filepath: str,output
         print("No valid expressions found in the file.")
         sys.exit(1)
         return
-    rules_list = create_rules()
+    rules_list = create_rules("rules.txt")
     rules_list["END"] = None
     results = []
     max_positions = 32

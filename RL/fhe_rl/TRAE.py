@@ -564,7 +564,7 @@ def main():
         # PART:  each rank loads **only its shard** of the big file
         # -----------------------------------------------------------
         data_path = "/scratch/ad7786/chehab-vectorization-rl/pretraining/dataset_balanced_ROT_32_15_5000000.txt"
-
+        # The dataset is generated using the veclang_random_gen.py
         print(f"[Rank {ddp_rank}] Loading dataset shard…")
         debug_print_memory("before dataset load")  
 

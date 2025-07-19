@@ -13,11 +13,11 @@ import subprocess
 
 
 
-def create_rules(vector_size) :
+def create_rules(path) :
     #command = ["./pytrs/egraphs-vectorization","rules", str(vector_size)]
     #subprocess.run(command, stderr=subprocess.DEVNULL)
     
-    rules_text = open(f"rules_{vector_size}.txt",'r').read().replace("?","")
+    rules_text = open(path,'r').read().replace("?","")
     rules = parse_rules_from_text(rules_text)
     
     rules_dict = {rule.name: rule for rule in rules}
