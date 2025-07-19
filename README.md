@@ -75,11 +75,11 @@ cd benchmarks/box_blur
 ./box_blur 1 0 1 1 4 1
 ```
 ```shell
-./benchmark_name <vectorize_code> <window> <call_quantifier> <cse> <slot_count> <const_folding>  ```
+./benchmark_name <vectorize_code> <window> <call_quantifier> <cse> <slot_count> <const_folding> 
+```
 
 
-vectorized_c
-**vectorize_code:**	Boolean (0/1)	to enable vectorized vs scalar code generation
+**vectorized_code:**	Boolean (0/1)	to enable vectorized vs scalar code generation
 **window:**	Integer	0	Vectorization window size
 **call_quantifier:**	Boolean (0/1)	to enable performance analysis and metrics
 **cse:**	Boolean (0/1)	to enable Common Subexpression Elimination
