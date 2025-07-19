@@ -74,17 +74,20 @@ A benchmark is run in two phases. The first execution triggers our compiler to t
 cd benchmarks/box_blur
 ./box_blur 1 0 1 1 4 1
 ```
+
+The general command to execute a benchmark is; 
+
 ```shell
 ./benchmark_name <vectorize_code> <window> <call_quantifier> <cse> <slot_count> <const_folding> 
 ```
 
 
-**vectorized_code:**	Boolean (0/1)	to enable vectorized vs scalar code generation
-**window:**	Integer	0	Vectorization window size
-**call_quantifier:**	Boolean (0/1)	to enable performance analysis and metrics
-**cse:**	Boolean (0/1)	to enable Common Subexpression Elimination
-**slot_count:**	Integer	to Specify the input size/dimensions for the benchmark
-**const_folding:**	Boolean (0/1)	to enable constant folding
+- **vectorized_code:**	Boolean (0/1)	to enable vectorized vs scalar code generation  
+- **window:**	Integer	0	Vectorization window size  
+- **call_quantifier:**	Boolean (0/1)	to enable performance analysis and metrics  
+- **cse:**	Boolean (0/1)	to enable Common Subexpression Elimination  
+- **slot_count:**	Integer	to Specify the input size/dimensions for the benchmark  
+- **const_folding:**	Boolean (0/1)	to enable constant folding  
 
 
 2. Navigate to the `he` directory, where you can find the created files to build the final executable. This automatically links the generated file with the SEAL library.
