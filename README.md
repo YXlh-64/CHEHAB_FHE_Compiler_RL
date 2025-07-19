@@ -30,24 +30,33 @@ In order to build and use the compiler, you need to have installed:
 - Cmake
 - GCC compiler
 - SEAL library version 4.1
+- Python requirements for the RL framework
 
-To build CHEHAB, you need to follow these steps:
-1. Clone the repository to your local machine.
-
+Start by cloning the Repo to your local machine:
 ```shell
 git clone https://github.com/Modern-Compilers-Lab/CHEHAB.git
 ```
+Setup a python environement and install the requirementsl: 
 
-2. Navigate to the cloned repository.
+```shell 
+python3 -m venv ./RL/rl_venv 
+Source ./RL/rl_venv/bin/activate
+pip3 install-r ./RL/requirements.txt 
+#make sure to update numpy to the latest version 
+pip3 install numpy --upgrade
+```
+
+To build CHEHAB, you need to follow these steps:
+1. Navigate to the cloned repository.
 ```shell
 cd CHEHAB
 ```
-3. Create a directory to build the compiler in
+2. Create a directory to build the compiler in
 ```shell
 mkdir build
 cmake -S . -B build
 ```
-4. Build the compiler
+3. Build the compiler
 ```shell
 cd build
 make
