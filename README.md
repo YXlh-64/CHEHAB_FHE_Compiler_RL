@@ -34,11 +34,12 @@ In order to build and use the compiler, you need to have installed:
 
 Start by cloning the Repo to your local machine:
 ```shell
-git clone https://github.com/Modern-Compilers-Lab/CHEHAB.git
+git clone https://github.com/Abderraouf-D/CHEHAB_FHE_Compiler_RL.git
 ```
 Setup a python environement and install the requirementsl: 
 
 ```shell 
+cd CHEHAB_FHE_Compiler_RL
 python3 -m venv ./RL/rl_venv 
 Source ./RL/rl_venv/bin/activate
 pip3 install-r ./RL/requirements.txt 
@@ -49,7 +50,7 @@ pip3 install numpy --upgrade
 To build CHEHAB, you need to follow these steps:
 1. Navigate to the cloned repository.
 ```shell
-cd CHEHAB
+cd CHEHAB_FHE_Compiler_RL
 ```
 2. Create a directory to build the compiler in
 ```shell
