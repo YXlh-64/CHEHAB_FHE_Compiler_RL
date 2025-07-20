@@ -83,7 +83,7 @@ The general command to execute a benchmark is;
 
 
 - **vectorized_code:**	Boolean (0/1)	to enable vectorized vs scalar code generation  
-- **window:**	Integer	0	Vectorization window size  
+- **window:**	Integer	to specify the Vectorization window size  
 - **call_quantifier:**	Boolean (0/1)	to enable performance analysis and metrics  
 - **cse:**	Boolean (0/1)	to enable Common Subexpression Elimination  
 - **slot_count:**	Integer	to Specify the input size/dimensions for the benchmark  
