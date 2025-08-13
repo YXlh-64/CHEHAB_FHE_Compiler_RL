@@ -1,13 +1,13 @@
 
 
 
-from expr import Const, Var, Op
-from pattern import RewriteRule
+from .expr import Const, Var, Op
+from .pattern import RewriteRule
 import re
 from typing import List
-from pattern import RewriteRule,parse_rules_from_text
-from expr import Expr, Const, Var
-from parser import parse_sexpr
+from .pattern import RewriteRule,parse_rules_from_text
+from .expr import Expr, Const, Var
+from .parser import parse_sexpr
 import subprocess
 
 
