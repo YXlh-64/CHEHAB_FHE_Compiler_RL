@@ -1,6 +1,6 @@
 
-from expr import Expr, Var, Const, Op
-from serializer import expr_to_str
+from .expr import Expr, Var, Const, Op
+from .serializer import expr_to_str
 import subprocess
 
 

@@ -1,12 +1,12 @@
 # pattern.py  ────────────────────────────────────────────────────────────────
 from typing import List, Dict, Union, Tuple, Optional
 
-from expr    import Expr, Const, Var, Op
-from veclang import SCALAR_OPS, VECTOR_OPS   #  << is now in VECTOR_OPS
-from util    import generate_random_assignments, evaluate_expr
+from .expr    import Expr, Const, Var, Op
+from .veclang import SCALAR_OPS, VECTOR_OPS   #  << is now in VECTOR_OPS
+from .util    import generate_random_assignments, evaluate_expr
 import re
 from collections import deque
-from parser import parse_sexpr
+from .parser import parse_sexpr
 
 class Pattern:
     """
